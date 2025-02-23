@@ -1,7 +1,6 @@
 import style from './Login.module.css'
-import logoEscrita from '../../src/assets/logoEscrita.png'
 import { useState } from 'react'
-import backgroudEnter from '../assets/backgroudEnter.svg'
+import Logo from '../assets/Logo.png'
 
 export const Login = () => {
     const [cpf, setCpf] = useState("");
@@ -28,7 +27,7 @@ export const Login = () => {
     return (
         <div className={style.container}>
             <div>
-                <img src={logoEscrita} alt="logo-marca" />
+                <img src={Logo} alt="logo-marca" />
             </div>
             <div className={style.containerFilho}>
                 <h2>Bem vindo(a)!</h2>
