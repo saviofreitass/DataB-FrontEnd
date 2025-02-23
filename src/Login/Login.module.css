@@ -8,7 +8,11 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: var(--background-color) ;
+    background: var(--background-color);
+    background-image: url('../assets/backgroudEnter.svg');
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 38% 100%;
 }
 
 .containerFilho{

@@ -1,7 +1,7 @@
 import style from './Login.module.css'
 import logoEscrita from '../../src/assets/logoEscrita.png'
 import { useState } from 'react'
-
+import backgroudEnter from '../assets/backgroudEnter.svg'
 
 export const Login = () => {
     const [cpf, setCpf] = useState("");
