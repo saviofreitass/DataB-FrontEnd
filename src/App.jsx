@@ -1,12 +1,19 @@
 import { useState } from 'react'
 import './App.css'
 import { Login } from './pages/login/Login'
+import { Home } from './pages/inicio/home'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
 
   return (
     <div>
-      <Login />
+      <Router>
+        <Routes>
+          <Route path='' element={<Login />}/>
+          <Route path='/home'  element={<Home />}/>
+        </Routes>
+      </Router>
     </div>
   )
 }
