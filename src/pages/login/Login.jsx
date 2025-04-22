@@ -1,27 +1,34 @@
 import style from './Login.module.css'
 import { useState } from 'react'
 import Logo from '../../assets/Logo.png'
+import { Register } from '../../components/Register';
 
 export const Login = () => {
-    const [cpf, setCpf] = useState("");
+    const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [ativo, setAtivo] = useState(false);
     const [erro, setErro] = useState(false);
+    const [register, setRegister] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setAtivo(true);
 
-        if (cpf === '' || senha === '') {
-            setErro("CPF ou senha estão incorretos.");
+        if (email === '' || senha === '') {
+            setErro("email ou senha estão incorretos.");
             return;
         }else{
             setErro("");
     
-            console.log('CPF: ', cpf);
+            console.log('e-mail: ', email);
             console.log('Senha: ', senha);   
         }
 
+    }
+
+    const handleRegister = (e) =>{
+        e.preventDefault
+        setRegister(true)
     }
 
     return (
@@ -35,14 +42,14 @@ export const Login = () => {
 
                     <form onSubmit={handleSubmit} className={style.containerElementos}>
                         <div className={style.inputContainer}>
-                            <label htmlFor="Cpf" className={style.label}>CPF</label>
+                            <label htmlFor="Email" className={style.label}>E-mail</label>
                             <input
                                 type="text"
-                                placeholder='Digite seu CPF de acesso'
+                                placeholder='Digite seu e-mail de acesso'
                                 className={`${style.input} ${erro ? style.inputErro : ''}`}
-                                value={cpf}
+                                value={email}
                                 onChange={(e) => {
-                                            setCpf(e.target.value)
+                                            setEmail(e.target.value)
                                             setErro("");
                                         }
                                 }
@@ -64,12 +71,14 @@ export const Login = () => {
                         </div>
                         <div className={style.botoesContainer}>
                             <button className={style.buttonEntrar} onClick={handleSubmit}>Entrar</button>
-                            <button className={style.buttonEsqueciASenha}>Esqueci a senha</button>
+                                <button className={style.buttonEsqueciASenha}>Esqueci a senha</button>
+                                <button className={style.buttonEsqueciASenha} onClick={handleRegister}>Registre-se</button>
                         </div>
                             <span className={style.span}>{erro}</span>
                     </form>
                 </div>
             </main>
+            {register && <Register onClose={() => setRegister(false)}/>}
         </div>
     )
 }
