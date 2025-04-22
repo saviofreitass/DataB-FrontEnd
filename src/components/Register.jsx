@@ -1,6 +1,8 @@
 import style from './Register.module.css'
 import Logo from '../assets/Logo.png'
 import { useState } from 'react';
+import { Alert } from '@mui/material';
+import { LinearDeterminate } from './loading/LinearDeterminate';
 
 export const Register = ({ onClose }) => {
     const [credenciais, setCredenciais] = useState({
@@ -9,6 +11,9 @@ export const Register = ({ onClose }) => {
         password: '',
         crc: '',
     })
+
+    const [showAlert, setShowAlert] = useState(false);
+    const [showLinear, setLinear] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,7 +25,12 @@ export const Register = ({ onClose }) => {
 
     const handleRegister = (e) =>{
         e.preventDefault();
-
+        setShowAlert(true)
+        setLinear(true)
+        setTimeout(()=>{
+            setLinear(false)
+            setShowAlert(false)
+        }, 5000)
         console.log("Pasou aqui:", credenciais)
     }
 
@@ -74,8 +84,14 @@ export const Register = ({ onClose }) => {
                     </div>
                     <button type="submit" className={style.registrar} onClick={handleRegister}>Registrar</button>
                 </form>
+
                 <button className={style.fechar} onClick={onClose}>Fechar</button>
             </div>
+            {showAlert && ( 
+                <div className={style.alertContainer}>
+                    <Alert variant='filled' severity='success'> Registro feito com sucesso!</Alert >
+                    <LinearDeterminate />
+                </div>) }
         </div>
     );
 }
