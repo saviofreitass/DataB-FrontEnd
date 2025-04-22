@@ -44,7 +44,7 @@ export const Login = () => {
                         <div className={style.inputContainer}>
                             <label htmlFor="Email" className={style.label}>E-mail</label>
                             <input
-                                type="e-mail"
+                                type="email"
                                 placeholder='Digite seu e-mail de acesso'
                                 className={`${style.input} ${erro ? style.inputErro : ''}`}
                                 value={email}
