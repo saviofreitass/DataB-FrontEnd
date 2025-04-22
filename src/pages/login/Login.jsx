@@ -27,7 +27,7 @@ export const Login = () => {
     }
 
     const handleRegister = (e) =>{
-        e.preventDefault
+        e.preventDefault()
         setRegister(true)
     }
 
@@ -44,7 +44,7 @@ export const Login = () => {
                         <div className={style.inputContainer}>
                             <label htmlFor="Email" className={style.label}>E-mail</label>
                             <input
-                                type="text"
+                                type="e-mail"
                                 placeholder='Digite seu e-mail de acesso'
                                 className={`${style.input} ${erro ? style.inputErro : ''}`}
                                 value={email}
@@ -75,11 +75,10 @@ export const Login = () => {
                                 <button className={style.buttonEsqueciASenha} onClick={handleRegister}>Registre-se</button>
                         </div>
                             <span className={style.span}>{erro}</span>
-                            {modal && <Registro onClose={() => setModal(false)}/>}
                     </form>
                 </div>
+                {register && <Register onClose={() => setRegister(false)}/>}
             </main>
-            {register && <Register onClose={() => setRegister(false)}/>}
         </div>
     )
 }
