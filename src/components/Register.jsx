@@ -12,7 +12,7 @@ export const Register = ({ onClose }) => {
         crc: '',
     })
 
-    const [showAlert, setShowAlert] = useState(false);
+    const [showAlert, setShowAlert] = useState(null);
     const [showLinear, setLinear] = useState(false);
 
     const handleChange = (e) => {
@@ -25,13 +25,23 @@ export const Register = ({ onClose }) => {
 
     const handleRegister = (e) =>{
         e.preventDefault();
-        setShowAlert(true)
-        setLinear(true)
-        setTimeout(()=>{
-            setLinear(false)
-            setShowAlert(false)
-        }, 5000)
-        console.log("Pasou aqui:", credenciais)
+        
+        const camposPreenchidos = Object.values(credenciais).every(field => field.trim() !== '');
+        
+        if (camposPreenchidos) {
+            console.log("Pasou aqui:", credenciais)
+            setShowAlert('success')
+            setTimeout(()=>{
+                setShowAlert(false)
+                onClose()
+            }, 5000)
+            
+        }else{
+            setShowAlert('error')
+            setTimeout(()=>{
+                setShowAlert(false)
+            }, 5000)
+        }
     }
 
     return (
@@ -89,9 +99,15 @@ export const Register = ({ onClose }) => {
             </div>
             {showAlert && ( 
                 <div className={style.alertContainer}>
-                    <Alert variant='filled' severity='success'> Registro feito com sucesso!</Alert >
+                    {showAlert === 'success' && (
+                        <Alert variant='filled' severity='success'>Registro feito com sucesso!</Alert>
+                    )}
+                    {showAlert === 'error' && (
+                        <Alert variant='filled' severity='error'>Erro: Todos os campos devem ser preenchidos.</Alert>
+                    )}
                     <LinearDeterminate />
-                </div>) }
+                </div>
+            )}
         </div>
     );
 }
