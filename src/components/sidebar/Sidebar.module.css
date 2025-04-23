@@ -39,3 +39,30 @@
     color: var(--text-secund);
     font-weight: bolder;
 }
+
+.icon{
+    color: var(--blue-200);
+}
+
+.funcao{
+    margin-top: 1.5rem;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    gap: 15px;
+    width: 200px;
+    height: 35px;
+}
+
+.funcao:hover{
+    cursor: pointer;
+    border: 1px solid var(--blue-200);
+    border-radius: 5px;         
+}
+
+.textoFuncao{
+    font-size: 0.85rem;
+    color: var(--text-secund);
+    font-weight: bolder;
+}
+

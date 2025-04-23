@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '../../assets/Logo.png';
 import style from './Sidebar.module.css';
+import { AbcTwoTone, AccessAlarm, Engineering, Home, HomeRepairService, ManageAccounts, PersonAddAlt1, RequestPage, ThreeDRotation } from '@mui/icons-material';
 
 export const Sidebar = () => {
     const [valor, setValor] = useState("");
@@ -23,6 +24,26 @@ export const Sidebar = () => {
                         console.log(e.target.value)
                     }}
                 />
+            </div>
+            <div className={style.funcao}>
+                <Home className={style.icon}/>
+                <span className={style.textoFuncao}>Home</span>   
+            </div>
+            <div className={style.funcao}>
+                <HomeRepairService className={style.icon}/>
+                <span className={style.textoFuncao}>Empregador</span>
+            </div>
+            <div className={style.funcao}>
+                <ManageAccounts className={style.icon}/>
+                <span className={style.textoFuncao}>Contador</span>
+            </div>
+            <div className={style.funcao}>
+                <Engineering className={style.icon}/>
+                <span className={style.textoFuncao}>Funcionário</span>
+            </div>
+            <div className={style.funcao}>
+              <RequestPage className={style.icon}/>
+              <span className={style.textoFuncao}>Contracheque</span>
             </div>
         </div>
     );
