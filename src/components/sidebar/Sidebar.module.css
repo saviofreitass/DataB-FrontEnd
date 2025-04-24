@@ -1,0 +1,68 @@
+.container {
+    width: 270px;
+    height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    width: 10.93rem;
+    height: auto;
+    margin-bottom: 1.25rem;
+}
+
+.cabeca{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.textoCabeca{
+    font-size: 0.85rem;
+    color: var(--text-secund);
+    margin-top: 3px;
+}
+
+.input{
+    margin-top: 20px;
+    border: 1px solid var(--text-secund);
+    border-radius: 3px;
+    height: 35px;
+    width: 200px;
+    outline: none;
+    padding-left: 10px;
+    color: var(--text-secund);
+    font-weight: bolder;
+}
+
+.icon{
+    color: var(--blue-200);
+}
+
+.funcao{
+    margin-top: 1.5rem;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    gap: 15px;
+    width: 200px;
+    height: 35px;
+}
+
+.funcao:hover{
+    cursor: pointer;
+    border: 1px solid var(--blue-200);
+    border-radius: 5px;         
+}
+
+.textoFuncao{
+    font-size: 0.85rem;
+    color: var(--text-secund);
+    font-weight: bolder;
+}
+

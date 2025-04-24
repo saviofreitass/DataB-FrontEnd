@@ -2,6 +2,9 @@ import style from './Login.module.css'
 import { useState } from 'react'
 import Logo from '../../assets/Logo.png'
 import { Register } from '../../components/Register';
+import { useNavigate } from 'react-router-dom';
+import { Alert } from '@mui/material';
+import { LinearDeterminate } from '../../components/loading/LinearDeterminate';
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -9,6 +12,9 @@ export const Login = () => {
     const [ativo, setAtivo] = useState(false);
     const [erro, setErro] = useState(false);
     const [register, setRegister] = useState(false);
+    const navigate = useNavigate();
+    const [showAlert, setShowAlert] = useState(null);
+    const [showLinear, setLinear] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -16,18 +22,29 @@ export const Login = () => {
 
         if (email === '' || senha === '') {
             setErro("email ou senha estão incorretos.");
+            setShowAlert('error')
+            setTimeout(() => {
+                setShowAlert(null)
+            }, 5000)
+
             return;
-        }else{
+        } else {
             setErro("");
-    
+
             console.log('e-mail: ', email);
-            console.log('Senha: ', senha);   
+            console.log('Senha: ', senha);
+
+            setShowAlert('success')
+            setTimeout(() => {
+                setShowAlert(null)
+                navigate('/home')
+            }, 5000)
         }
 
     }
 
-    const handleRegister = (e) =>{
-        e.preventDefault
+    const handleRegister = (e) => {
+        e.preventDefault()
         setRegister(true)
     }
 
@@ -40,18 +57,18 @@ export const Login = () => {
                 <div className={style.containerFilho}>
                     <h2>Bem vindo(a)!</h2>
 
-                    <form onSubmit={handleSubmit} className={style.containerElementos}>
+                    <form className={style.containerElementos}>
                         <div className={style.inputContainer}>
                             <label htmlFor="Email" className={style.label}>E-mail</label>
                             <input
-                                type="text"
+                                type="email"
                                 placeholder='Digite seu e-mail de acesso'
                                 className={`${style.input} ${erro ? style.inputErro : ''}`}
                                 value={email}
                                 onChange={(e) => {
-                                            setEmail(e.target.value)
-                                            setErro("");
-                                        }
+                                    setEmail(e.target.value)
+                                    setErro("");
+                                }
                                 }
                             />
                         </div>
@@ -62,23 +79,34 @@ export const Login = () => {
                                 placeholder='Digite sua senha de acesso'
                                 className={`${style.input} ${erro ? style.inputErro : ''}`}
                                 value={senha}
-                                onChange={(e) =>{
-                                            setSenha(e.target.value)
-                                            setErro("")
-                                        }
+                                onChange={(e) => {
+                                    setSenha(e.target.value)
+                                    setErro("")
+                                }
                                 }
                             />
                         </div>
                         <div className={style.botoesContainer}>
                             <button className={style.buttonEntrar} onClick={handleSubmit}>Entrar</button>
-                                <button className={style.buttonEsqueciASenha}>Esqueci a senha</button>
-                                <button className={style.buttonEsqueciASenha} onClick={handleRegister}>Registre-se</button>
+                            <button className={style.buttonEsqueciASenha}>Esqueci a senha</button>
+                            <button className={style.buttonEsqueciASenha} onClick={handleRegister}>Registre-se</button>
                         </div>
-                            <span className={style.span}>{erro}</span>
+                        <span className={style.span}>{erro}</span>
                     </form>
                 </div>
+                {register && <Register onClose={() => setRegister(false)} />}
             </main>
-            {register && <Register onClose={() => setRegister(false)}/>}
+            {showAlert && (
+                <div className={style.alertContainer}>
+                    {showAlert === 'success' && (
+                        <Alert variant='filled' severity='success'>Login feito com sucesso!</Alert>
+                    )}
+                    {showAlert === 'error' && (
+                        <Alert variant='filled' severity='error'>Erro: Credenciais incorretas.</Alert>
+                    )}
+                    <LinearDeterminate />
+                </div>
+            )}
         </div>
     )
 }
