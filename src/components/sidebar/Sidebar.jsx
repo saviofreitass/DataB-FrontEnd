@@ -37,7 +37,7 @@ export const Sidebar = () => {
                 <ManageAccounts className={style.icon}/>
                 <span className={style.textoFuncao}>Contador</span>
             </div>
-            <div className={style.funcao}>
+            <div className={style.funcao} >
                 <Engineering className={style.icon}/>
                 <span className={style.textoFuncao}>Funcionário</span>
             </div>

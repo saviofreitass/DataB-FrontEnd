@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { Login } from './pages/login/Login'
-import { Home } from './pages/inicio/home'
+import { Home } from './pages/inicio/Home'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
