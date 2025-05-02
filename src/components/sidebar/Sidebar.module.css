@@ -57,7 +57,8 @@
 .funcao:hover{
     cursor: pointer;
     border: 1px solid var(--blue-200);
-    border-radius: 5px;         
+    border-radius: 5px;
+    background-color:rgba(0, 123, 255, 0.2);         
 }
 
 .textoFuncao{
@@ -65,4 +66,3 @@
     color: var(--text-secund);
     font-weight: bolder;
 }
-

@@ -3,7 +3,7 @@ import Icon from '../../assets/Logo.png';
 import style from './Sidebar.module.css';
 import { AbcTwoTone, AccessAlarm, Engineering, Home, HomeRepairService, ManageAccounts, PersonAddAlt1, RequestPage, ThreeDRotation } from '@mui/icons-material';
 
-export const Sidebar = () => {
+export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores }) => {
     const [valor, setValor] = useState("");
 
 
@@ -25,7 +25,7 @@ export const Sidebar = () => {
                     }}
                 />
             </div>
-            <div className={style.funcao}>
+            <div className={style.funcao} onClick={voltarHome}>
                 <Home className={style.icon}/>
                 <span className={style.textoFuncao}>Home</span>   
             </div>
@@ -33,11 +33,11 @@ export const Sidebar = () => {
                 <HomeRepairService className={style.icon}/>
                 <span className={style.textoFuncao}>Empregador</span>
             </div>
-            <div className={style.funcao}>
+            <div className={style.funcao} onClick={exibirContadores}>
                 <ManageAccounts className={style.icon}/>
                 <span className={style.textoFuncao}>Contador</span>
             </div>
-            <div className={style.funcao} >
+            <div className={style.funcao} onClick={exibirFuncionarios}>
                 <Engineering className={style.icon}/>
                 <span className={style.textoFuncao}>Funcionário</span>
             </div>
