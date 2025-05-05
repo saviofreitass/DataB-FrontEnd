@@ -9,23 +9,26 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Add, Edit } from '@mui/icons-material';
 import { RegistroFuncionario } from '../RegistroFuncionario/RegistroFuncionario';
+import { useEffect } from 'react';
+import axios from 'axios';
+import { Chip } from '@mui/material';
 
 export const TableFuncionario = () => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [dadosFuncionario, setDadosFuncionario] = useState([])
+
   const handleAbrirRegistro = () => setMostrarRegistro(true);
   const handleFecharRegistro = () => setMostrarRegistro(false);
 
-  function createData(nome, cpf, setor, cargo, empregador, contador, status) {
-    return { nome, cpf, setor, cargo, empregador, contador, status };
-  }
-
-  const dadosFuncionario = [
-    createData("João Pedro", 14608534661, 'gestao', 'desenvolvedor', 'Paulo Ricardo', 'Eduardo Feliciano', 'Ativo'),
-    createData("Savio", 11111111111, 'gestao', 'desenvolvedor', 'Paulo Ricardo', 'Eduardo Feliciano', 'Ativo'),
-    createData("Renato", 11111111112, 'gestao', 'desenvolvedor', 'Paulo Ricardo', 'Eduardo Feliciano', 'Ativo'),
-    createData("Atila", 11111111113, 'gestao', 'desenvolvedor', 'Paulo Ricardo', 'Eduardo Feliciano', 'Ativo'),
-    createData("Kaio", 11111111114, 'gestao', 'desenvolvedor', 'Paulo Ricardo', 'Eduardo Feliciano', 'Ativo'),
-  ];
+  useEffect(() => {
+    axios.get('http://localhost:8080/funcionario')
+      .then(Response => {
+        setDadosFuncionario(Response.data)
+      })
+      .catch(error => {
+        console.error("Erro ao buscar funcionários: ", error)
+      })
+  }, [])
 
   if (mostrarRegistro) {
     return <RegistroFuncionario onCancelar={handleFecharRegistro} />;
@@ -58,16 +61,23 @@ export const TableFuncionario = () => {
       <TableBody>
         {dadosFuncionario.map((dadosFuncionario) => (
           <TableRow
-            key={dadosFuncionario.cpf}
+            key={dadosFuncionario.cpfcnpj}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cpf}</TableCell>
+            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cpfcnpj}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.nome}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.setor}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cargo}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.empregador}</TableCell>
             <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{dadosFuncionario.contador}</TableCell>
-            <TableCell sx={{ color: 'var(--ativo)', fontWeight: 'bolder' }}>{dadosFuncionario.status}</TableCell>
+            <TableCell >
+              <Chip
+                label={dadosFuncionario.ativo ? 'Ativo' : 'Inativo'}
+                color={dadosFuncionario.ativo ? 'success' : 'error'}
+                size="small"
+                variant="outlined"
+              />
+            </TableCell>
             <TableCell align='center'>
               <Edit
                 sx={{
