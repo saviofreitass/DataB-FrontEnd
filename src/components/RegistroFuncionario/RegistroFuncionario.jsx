@@ -73,9 +73,10 @@ export const RegistroFuncionario = ({ onCancelar }) => {
             )}
             <Box
                 sx={{
-                    display:
-                        'flex', gap: 2
-                }}>
+                    display:'flex', 
+                    gap: 2
+                }}
+            >
                 <TextField
                     name="nome"
                     value={dadosFuncionario.nome}

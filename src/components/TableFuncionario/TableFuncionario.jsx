@@ -12,13 +12,23 @@ import { RegistroFuncionario } from '../RegistroFuncionario/RegistroFuncionario'
 import { useEffect } from 'react';
 import axios from 'axios';
 import { Chip } from '@mui/material';
+import { UpdateFuncionario } from '../UpdateFuncionario/UpdateFuncionario';
 
 export const TableFuncionario = () => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [dadosFuncionario, setDadosFuncionario] = useState([])
+  const [editarFuncionario, setEditarFuncionario] = useState(false)
+  const [funcionarioSelciocionado, setFuncionarioSelecionado] = useState(null);
 
   const handleAbrirRegistro = () => setMostrarRegistro(true);
   const handleFecharRegistro = () => setMostrarRegistro(false);
+
+  const handleAbrirEdicao = (funcionario) => {
+    setEditarFuncionario(true)
+    setFuncionarioSelecionado(funcionario)
+  }
+
+  const handleFecharEdicao = () => setEditarFuncionario(false);
 
   useEffect(() => {
     axios.get('http://localhost:8080/funcionario')
@@ -80,6 +90,7 @@ export const TableFuncionario = () => {
             </TableCell>
             <TableCell align='center'>
               <Edit
+                onClick={() => handleAbrirEdicao(dadosFuncionario)}
                 sx={{
                   color: 'var(--blue-200)',
                   cursor: 'pointer',
@@ -91,6 +102,11 @@ export const TableFuncionario = () => {
           </TableRow>
         ))}
       </TableBody>
+      {<UpdateFuncionario
+        open={editarFuncionario}
+        onClose={handleFecharEdicao}
+        funcionario={funcionarioSelciocionado}
+      />}
     </TableContainer>
   );
 };
