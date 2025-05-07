@@ -32,15 +32,15 @@ export const TableFuncionario = () => {
   const handleFecharEdicao = () => setEditarFuncionario(false);
 
   useEffect(() => {
-      const carregarFuncionarios = async () => {
-        try {
-          const response = await FuncionarioService.get()
-          setDadosFuncionario(response.data)
-        } catch (error) {
-          console.error("Erro ao buscar funcionários: ", error)
-        }
+    const carregarFuncionarios = async () => {
+      try {
+        const response = await FuncionarioService.get()
+        setDadosFuncionario(response.data)
+      } catch (error) {
+        console.error("Erro ao buscar funcionários: ", error)
       }
-      carregarFuncionarios()
+    }
+    carregarFuncionarios()
   }, [])
 
   if (mostrarRegistro) {
