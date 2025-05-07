@@ -7,10 +7,17 @@ import FuncionarioService from '../../Services/FuncionarioService';
 export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
 
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
+    const [ativo, setAtivo] = useState()
 
     useEffect(() => {
-        if(mensagem.texto){
-            const tempoSaida = setTimeout(() => setMensagem({ tipo: '', texto: ''}), 3500)
+        if(funcionario){
+            setAtivo(funcionario.ativo)
+        }
+    }, [funcionario])
+
+    useEffect(() => {
+        if (mensagem.texto) {
+            const tempoSaida = setTimeout(() => setMensagem({ tipo: '', texto: '' }), 3500)
             return () => clearTimeout(tempoSaida)
         }
     }, [mensagem])
@@ -21,6 +28,12 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
         const formData = new FormData(e.currentTarget)
         const dadosAtualizados = Object.fromEntries(formData.entries())
 
+        if (!dadosAtualizados.senha) {
+            delete dadosAtualizados.senha
+        }
+
+        dadosAtualizados.ativo = ativo
+
         try {
             const response = await FuncionarioService.update(funcionario.id, dadosAtualizados)
             const mensagemSucesso = response.data?.mesage || "Funcionário atualizado com sucesso!"
@@ -30,6 +43,10 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
             setMensagem({ tipo: 'error', texto: mensagemErro })
             console.error("Erro ao tentar atualizar o funcionario!", error)
         }
+    }
+
+    const handleSetAtivo = () => {
+        setAtivo((prev) => !prev)
     }
 
     return (
@@ -193,6 +210,14 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
                         label="Usuario"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
+                    />
+                    <Chip
+                        label={ativo ? 'Ativo' : 'Inativo'}
+                        color={ativo ? 'success' : 'error'}
+                        size="small"
+                        variant="outlined"
+                        clickable
+                        onClick={handleSetAtivo}
                     />
                 </Box>
             </Box>
