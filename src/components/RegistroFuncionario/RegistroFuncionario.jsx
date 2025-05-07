@@ -87,6 +87,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                 }}
             >
                 <TextField
+                    required
                     name="nome"
                     value={dadosFuncionario.nome}
                     onChange={handleChange}
@@ -95,6 +96,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="cpfcnpj"
                     value={dadosFuncionario.cpfcnpj}
                     onChange={handleChange}
@@ -128,6 +130,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
 
             <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
+                    required
                     name="email"
                     value={dadosFuncionario.email}
                     onChange={handleChange}
@@ -136,6 +139,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="senha"
                     value={dadosFuncionario.senha}
                     onChange={handleChange}
@@ -176,6 +180,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="salario"
                     value={dadosFuncionario.salario}
                     onChange={handleChange}
@@ -192,6 +197,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="usuarioCriacao"
                     value={dadosFuncionario.usuarioCriacao}
                     onChange={handleChange}
@@ -200,6 +206,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="usuarioAtualizacao"
                     value={dadosFuncionario.usuarioAtualizacao}
                     onChange={handleChange}
