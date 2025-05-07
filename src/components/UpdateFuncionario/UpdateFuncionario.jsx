@@ -1,29 +1,35 @@
 import { Alert, Box, Button, Chip, Grid, Modal, TextField } from '@mui/material';
 import { Add, Cancel, Edit, SaveAlt } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import FuncionarioService from '../../Services/FuncionarioService';
 
 
 export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
 
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
 
-    const handleSubmit = (e) => {
+    useEffect(() => {
+        if(mensagem.texto){
+            const tempoSaida = setTimeout(() => setMensagem({ tipo: '', texto: ''}), 3500)
+            return () => clearTimeout(tempoSaida)
+        }
+    }, [mensagem])
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
         const formData = new FormData(e.currentTarget)
         const dadosAtualizados = Object.fromEntries(formData.entries())
 
-        axios.put(`http://localhost:8080/funcionario/${funcionario.id}`, dadosAtualizados)
-            .then((response) => {
-                const mensagemSucesso = response.data?.mensagem || "Funcionário atualizado com sucesso!"
-                setMensagem({tipo: 'success', texto: mensagemSucesso})
-            })
-            .catch(error => {
-                const mensagemErro = error.response?.data?.mensagem || "Erro ao tentar atualizar o funcionário!"
-                setMensagem({ tipo: 'error', texto: mensagemErro })
-                console.error("Erro ao tentar atualizar o funcionario!", error)
-            })
+        try {
+            const response = await FuncionarioService.update(funcionario.id, dadosAtualizados)
+            const mensagemSucesso = response.data?.mesage || "Funcionário atualizado com sucesso!"
+            setMensagem({ tipo: 'success', texto: mensagemSucesso })
+        } catch (error) {
+            const mensagemErro = error.response?.data?.mesage || "Erro ao tentar atualizar o funcionário!"
+            setMensagem({ tipo: 'error', texto: mensagemErro })
+            console.error("Erro ao tentar atualizar o funcionario!", error)
+        }
     }
 
     return (
@@ -64,7 +70,7 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
                     <TextField
                         name="id"
                         defaultValue={funcionario?.id}
-                        InputProps={{ readOnly: true  }}
+                        InputProps={{ readOnly: true }}
                         label="Id"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}

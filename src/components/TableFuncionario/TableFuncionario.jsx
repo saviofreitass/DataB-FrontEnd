@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { Chip } from '@mui/material';
 import { UpdateFuncionario } from '../UpdateFuncionario/UpdateFuncionario';
+import FuncionarioService from '../../Services/FuncionarioService';
 
 export const TableFuncionario = () => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
@@ -31,13 +32,15 @@ export const TableFuncionario = () => {
   const handleFecharEdicao = () => setEditarFuncionario(false);
 
   useEffect(() => {
-    axios.get('http://localhost:8080/funcionario')
-      .then(Response => {
-        setDadosFuncionario(Response.data)
-      })
-      .catch(error => {
-        console.error("Erro ao buscar funcionários: ", error)
-      })
+      const carregarFuncionarios = async () => {
+        try {
+          const response = await FuncionarioService.get()
+          setDadosFuncionario(response.data)
+        } catch (error) {
+          console.error("Erro ao buscar funcionários: ", error)
+        }
+      }
+      carregarFuncionarios()
   }, [])
 
   if (mostrarRegistro) {

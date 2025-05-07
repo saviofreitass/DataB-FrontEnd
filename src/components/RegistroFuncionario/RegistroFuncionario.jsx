@@ -4,6 +4,7 @@ import { teal } from "@mui/material/colors";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { LinearDeterminate } from "../loading/LinearDeterminate";
+import FuncionarioService from "../../Services/FuncionarioService";
 
 
 export const RegistroFuncionario = ({ onCancelar }) => {
@@ -24,6 +25,15 @@ export const RegistroFuncionario = ({ onCancelar }) => {
         usuarioAtualizacao: ""
     })
 
+    useEffect(() => {
+        if(mensagem.texto){
+            const tempoMensagem = setTimeout(() => {
+                setMensagem({ tipo: '' , texto: ''})
+            }, 4500)
+            return () => clearTimeout(tempoMensagem)
+        }
+    }, [mensagem])
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setDadosFuncionario((prev) => ({
@@ -34,19 +44,18 @@ export const RegistroFuncionario = ({ onCancelar }) => {
 
     const handleSalvar = async () => {
         try {
+
             const payload = {
                 ...dadosFuncionario,
                 salario: parseFloat(dadosFuncionario.salario),
                 // dataAdmissao: new Date(dadosFuncionario.dataAdmissao).toISOString(),
             }
 
-            const response = await axios.post("http://localhost:8080/funcionario/cadastro", payload)
-            const mensagemSucesso = response.data?.mensagem || 'Funcionário cadastrado com sucesso!'
-
+            const response = await FuncionarioService.insert(payload)
+            const mensagemSucesso = response.data?.mesage || 'Funcionário cadastrado com sucesso!'
             setMensagem({ tipo: 'success', texto: mensagemSucesso })
-
         } catch (error) {
-            const mensagemErro = error.response?.data?.mensagem || 'Erro ao cadastrar funcionário.'
+            const mensagemErro = error.response?.data?.mesage || 'Erro ao cadastrar funcionário.'
             setMensagem({ tipo: 'error', texto: mensagemErro })
         }
     }
