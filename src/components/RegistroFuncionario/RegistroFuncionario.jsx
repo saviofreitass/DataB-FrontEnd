@@ -45,10 +45,13 @@ export const RegistroFuncionario = ({ onCancelar }) => {
     const handleSalvar = async () => {
         try {
 
+            const dataAdmissao = new Date()
+            const dataFormatada = dataAdmissao.toISOString()
+
             const payload = {
                 ...dadosFuncionario,
                 salario: parseFloat(dadosFuncionario.salario),
-                // dataAdmissao: new Date(dadosFuncionario.dataAdmissao).toISOString(),
+                dataAdmissao: dataFormatada
             }
 
             const response = await FuncionarioService.insert(payload)
@@ -67,7 +70,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2,
-                width: 850,
+                width: 970,
                 border: 1,
                 borderRadius: 2,
                 borderColor: 'var(--text-primary)',
@@ -189,10 +192,15 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
+                    type="date"
                     name="dataAdmissao"
                     value={dadosFuncionario.dataAdmissao}
                     onChange={handleChange}
                     label="Data Admissao"
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
                     size="small"
                     sx={{ ...inputStyle, flex: 1 }}
                 />
