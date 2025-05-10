@@ -60,8 +60,16 @@ export const TableFuncionario = () => {
     return <RegistroFuncionario onCancelar={handleFecharRegistro} />;
   }
 
+  const formatarCPF = (cpf) => {
+    if (!cpf) return ''
+    return cpf.replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+  }
+
   return (
-    <TableContainer component={Paper} sx={{ width: 850, border: 1, borderColor: 'var(--blue-200)' }}>
+    <TableContainer component={Paper} sx={{ width: 870, border: 1, borderColor: 'var(--blue-200)' }}>
       <TableHead sx={{ minWidth: 650 }} aria-label='simple table'>
         <TableRow>
           <TableCell align='left'>CPF</TableCell>
@@ -90,7 +98,9 @@ export const TableFuncionario = () => {
             key={dadosFuncionario.cpfcnpj}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cpfcnpj}</TableCell>
+            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>
+              {formatarCPF(dadosFuncionario.cpfcnpj)}
+            </TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.nome}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.setor}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cargo}</TableCell>
