@@ -4,13 +4,42 @@ import { useEffect, useState } from 'react';
 import FuncionarioService from '../../Services/FuncionarioService';
 
 
-export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
+export const UpdateFuncionario = ({ open, onClose, funcionario, onUpdate }) => {
 
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
     const [ativo, setAtivo] = useState()
 
+    const [cpf, setCpf] = useState('')
+    const [telefone, setTelefone] = useState('')
+
+    const formatarCpf = (valor) => {
+        return valor
+            .replace(/\D/g, '')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+
+    const formatarTelefone = (valor) => {
+        const telefoneLimpo = valor.replace(/\D/g, '')
+
+        if (telefoneLimpo.lenght <= 10) {
+            return telefoneLimpo
+                .replace(/^(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{4})(\d)/, '$1-$2')
+        } else {
+            return telefoneLimpo
+                .replace(/^(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{5})(\d)/, '$1-$2')
+        }
+
+        return valor
+    }
+
     useEffect(() => {
-        if(funcionario){
+        if (funcionario) {
+            setTelefone(formatarTelefone(funcionario.telefone || ''))
+            setCpf(formatarCpf(funcionario.cpfcnpj || ''))
             setAtivo(funcionario.ativo)
         }
     }, [funcionario])
@@ -33,11 +62,16 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
         }
 
         dadosAtualizados.ativo = ativo
+        const cpfLimpo = cpf.replace(/\D/g, '')
+        dadosAtualizados.cpfcnpj = cpfLimpo
+        dadosAtualizados.telefone = telefone.replace(/\D/g, '')
 
         try {
             const response = await FuncionarioService.update(funcionario.id, dadosAtualizados)
             const mensagemSucesso = response.data?.mesage || "Funcionário atualizado com sucesso!"
             setMensagem({ tipo: 'success', texto: mensagemSucesso })
+
+            if (onUpdate) onUpdate()
         } catch (error) {
             const mensagemErro = error.response?.data?.mesage || "Erro ao tentar atualizar o funcionário!"
             setMensagem({ tipo: 'error', texto: mensagemErro })
@@ -132,7 +166,9 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
                     />
                     <TextField
                         name="cpfcnpj"
-                        defaultValue={funcionario?.cpfcnpj}
+
+                        value={cpf}
+                        onChange={(e) => setCpf(formatarCpf(e.target.value))}
                         label="CPF"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
@@ -157,7 +193,8 @@ export const UpdateFuncionario = ({ open, onClose, funcionario }) => {
                     />
                     <TextField
                         name="telefone"
-                        defaultValue={funcionario?.telefone}
+                        value={telefone}
+                        onChange={(e) => setTelefone (formatarTelefone(e.target.value))}
                         label="Telefone"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}

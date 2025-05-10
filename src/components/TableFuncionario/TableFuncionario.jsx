@@ -29,6 +29,19 @@ export const TableFuncionario = () => {
     setFuncionarioSelecionado(funcionario)
   }
 
+  const carregarFuncionarios = async () => {
+    try {
+      const response = await FuncionarioService.get()
+      setDadosFuncionario(response.data)
+    } catch (error) {
+      console.error("Erro ao listar funcionários: ", error)
+    }
+  }
+
+  useEffect(() => {
+    carregarFuncionarios()
+  }, [])
+
   const handleFecharEdicao = () => setEditarFuncionario(false);
 
   useEffect(() => {
@@ -109,6 +122,7 @@ export const TableFuncionario = () => {
         open={editarFuncionario}
         onClose={handleFecharEdicao}
         funcionario={funcionarioSelciocionado}
+        onUpdate={carregarFuncionarios}
       />}
     </TableContainer>
   );
