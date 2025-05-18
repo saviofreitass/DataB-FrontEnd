@@ -44,7 +44,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
 
     const handleSalvar = async () => {
         try {
-
+            
             const dataAdmissao = new Date()
             const dataFormatada = dataAdmissao.toISOString()
 
