@@ -5,43 +5,54 @@ import { Register } from '../../components/Register';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { LinearDeterminate } from '../../components/loading/LinearDeterminate';
+import LoginService from '../../Services/LoginService.js'
 
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
-    const [ativo, setAtivo] = useState(false);
     const [erro, setErro] = useState(false);
     const [register, setRegister] = useState(false);
     const navigate = useNavigate();
     const [showAlert, setShowAlert] = useState(null);
     const [showLinear, setLinear] = useState(false);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setAtivo(true);
 
-        if (email === '' || senha === '') {
-            setErro("email ou senha estão incorretos.");
-            setShowAlert('error')
-            setTimeout(() => {
-                setShowAlert(null)
-            }, 5000)
 
-            return;
-        } else {
+    const credenciais = {
+        'email': email,
+        'senha': senha
+    }
+
+
+    const handleLogin = async (e) => {
+        e.preventDefault(e)
+        try {
+            const response = await LoginService.post(credenciais)
+
+            localStorage.setItem('token', JSON.stringify(response.data.acessToken))
+
+
+
             setErro("");
-
-            console.log('e-mail: ', email);
-            console.log('Senha: ', senha);
 
             setShowAlert('success')
             setTimeout(() => {
                 setShowAlert(null)
                 navigate('/home')
             }, 5000)
-        }
 
+
+        } catch (error) {
+            console.error("Erro ao tentar entrar no sistema", error)
+
+            setErro("email ou senha estão incorretos.");
+            setShowAlert('error')
+            setTimeout(() => {
+                setShowAlert(null)
+            }, 5000)
+        }
     }
+
 
     const handleRegister = (e) => {
         e.preventDefault()
@@ -87,7 +98,7 @@ export const Login = () => {
                             />
                         </div>
                         <div className={style.botoesContainer}>
-                            <button className={style.buttonEntrar} onClick={handleSubmit}>Entrar</button>
+                            <button className={style.buttonEntrar} onClick={handleLogin}>Entrar</button>
                             <button className={style.buttonEsqueciASenha}>Esqueci a senha</button>
                             <button className={style.buttonEsqueciASenha} onClick={handleRegister}>Registre-se</button>
                         </div>

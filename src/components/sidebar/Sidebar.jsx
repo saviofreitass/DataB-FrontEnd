@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import Icon from '../../assets/Logo.png';
 import style from './Sidebar.module.css';
-import { AbcTwoTone, AccessAlarm, Engineering, Home, HomeRepairService, ManageAccounts, PersonAddAlt1, RequestPage, ThreeDRotation } from '@mui/icons-material';
+import { AbcTwoTone, AccessAlarm, Engineering, Home, HomeRepairService, ManageAccounts, PersonAddAlt1, RequestPage, ThreeDRotation, MonetizationOn } from '@mui/icons-material';
 
 export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores }) => {
     const [valor, setValor] = useState("");
-
 
     return (
         <div className={style.container}>  
@@ -44,6 +43,10 @@ export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores }) =>
             <div className={style.funcao}>
               <RequestPage className={style.icon}/>
               <span className={style.textoFuncao}>Contracheque</span>
+            </div>
+            <div className={style.funcao} > 
+                <MonetizationOn className={style.icon}/>
+                <span className={style.textoFuncao}>Tabela salário</span>
             </div>
         </div>
     );
