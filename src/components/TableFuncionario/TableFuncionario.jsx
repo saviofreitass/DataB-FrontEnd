@@ -99,9 +99,9 @@ export const TableFuncionario = () => {
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>
-              {formatarCPF(dadosFuncionario.cpfcnpj)}
+              {formatarCPF(dadosFuncionario.pessoa.cpfcnpj)}
             </TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.nome}</TableCell>
+            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.pessoa.nome}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.setor}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cargo}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.empregador}</TableCell>
