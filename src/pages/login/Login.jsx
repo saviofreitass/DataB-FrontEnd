@@ -1,6 +1,7 @@
 import style from './Login.module.css'
 import { useState } from 'react'
 import Logo from '../../assets/Logo.png'
+import LogoBigData1 from '../../assets/LogoBigData1.png'
 import { Register } from '../../components/Register';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '@mui/material';
@@ -16,32 +17,23 @@ export const Login = () => {
     const [showAlert, setShowAlert] = useState(null);
     const [showLinear, setLinear] = useState(false);
 
-
-
     const credenciais = {
         'email': email,
         'senha': senha
     }
 
-
     const handleLogin = async (e) => {
         e.preventDefault(e)
         try {
             const response = await LoginService.post(credenciais)
-
             localStorage.setItem('token', JSON.stringify(response.data.acessToken))
 
-
-
             setErro("");
-
             setShowAlert('success')
             setTimeout(() => {
                 setShowAlert(null)
                 navigate('/home')
             }, 5000)
-
-
         } catch (error) {
             console.error("Erro ao tentar entrar no sistema", error)
 
@@ -53,7 +45,6 @@ export const Login = () => {
         }
     }
 
-
     const handleRegister = (e) => {
         e.preventDefault()
         setRegister(true)
@@ -63,7 +54,7 @@ export const Login = () => {
         <div className={style.container}>
             <main>
                 <div className={style.containerLogo}>
-                    <img src={Logo} alt="logo-marca" />
+                    <img src={LogoBigData1} alt="logo-marca" />
                 </div>
                 <div className={style.containerFilho}>
                     <h2>Bem vindo(a)!</h2>
