@@ -1,18 +1,34 @@
-import { useState } from "react";
-import { Sidebar } from "../../components/sidebar/Sidebar";
-import style from "./Home.module.css";
-import Otimizacao from "../../assets/Otimizacao.svg"
+import { useEffect, useState } from "react";
+
 import { AccountCircle, NotificationsNone } from "@mui/icons-material";
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
+
+import Otimizacao from "../../assets/Otimizacao.svg"
 import Empregador from "../../assets/Empregador.svg"
 import Contador from '../../assets/Contador.svg'
 import Funcionario from '../../assets/Funcionario.svg'
 import SearchFile from '../../assets/SearchFile.svg'
+
+import { Sidebar } from "../../components/sidebar/Sidebar";
+import style from "./Home.module.css";
 import { TableFuncionario } from "../../components/TableFuncionario/TableFuncionario";
 import { TableContador } from "../../components/TableContador/TableContador";
 
+import { decodeJWT } from "../../components/Utils/DecodeToken";
+
 export const Home = () => {
     const [tabelaSelecionada, setTabelaSelecionada] = useState('');
+    const [userRole, setUserRole] = useState('');
+
+    useEffect(() => {
+        const token = JSON.parse(localStorage.getItem('token'))
+        if(token){
+            const payload = decodeJWT(token)
+            if(payload?.tipo){
+                setUserRole(payload.tipo)
+            }
+        }
+    }, [])
 
     const exibirFuncionarios = () => {
         setTabelaSelecionada('funcionarios');
@@ -22,6 +38,112 @@ export const Home = () => {
         setTabelaSelecionada('contadores');
     };
 
+    const renderCards = () => {
+        if (userRole === 'ROLE_FUNCIONARIO') {
+            return (
+                <Card>
+                    <CardActionArea>
+                        <CardMedia 
+                            component="img"
+                            height="165"
+                            image={SearchFile}
+                            alt="logo"
+                        />
+                        <CardContent>
+                            <Typography gutterBottom variant="h6">
+                                Contracheque
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Visualize os seus últimos contracheques
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+            );
+        } else if (userRole === 'ROLE_CONTADOR') {
+            return (
+                <>
+                    <Card>
+                        <CardActionArea>
+                            <CardMedia 
+                                component="img"
+                                height="165"
+                                image={Empregador}
+                                alt="logo"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h6">
+                                    Empregador
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    Faça o cadastro dos empregadores
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+
+                    <Card>
+                        <CardActionArea onClick={exibirContadores}> 
+                            <CardMedia 
+                                component="img"
+                                height="165"
+                                image={Contador}
+                                alt="logo"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h6">
+                                    Contador
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    Faça o cadastro dos contadores
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+
+                    <Card>
+                        <CardActionArea onClick={exibirFuncionarios}>
+                            <CardMedia 
+                                component="img"
+                                height="165"
+                                image={Funcionario}
+                                alt="logo"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h6">
+                                    Funcionário
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    Faça o cadastro dos funcionários
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+
+                    <Card>
+                        <CardActionArea>
+                            <CardMedia 
+                                component="img"
+                                height="165"
+                                image={SearchFile}
+                                alt="logo"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h6">
+                                    Contracheque
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    Visualize os seus últimos contracheques
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+                </>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className={style.container}>
             <aside>
@@ -29,6 +151,7 @@ export const Home = () => {
                     voltarHome={() => setTabelaSelecionada('')} 
                     exibirFuncionarios={exibirFuncionarios} 
                     exibirContadores={exibirContadores}
+                    isFuncionario={userRole === 'ROLE_FUNCIONARIO'}
                 />
             </aside>
             <main className={style.main}>
@@ -53,81 +176,7 @@ export const Home = () => {
                             <h2>Auxiliares de Cadastros</h2>
                         </div>
                         <div className={style.cards}>
-                            <Card>
-                                <CardActionArea>
-                                    <CardMedia 
-                                        component="img"
-                                        height="165"
-                                        image={Empregador}
-                                        alt="logo"
-                                    />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h6">
-                                            Empregador
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Faça o cadastro dos empregadores
-                                        </Typography>
-                                    </CardContent>
-                                </CardActionArea>
-                            </Card>
-
-                            <Card>
-                                <CardActionArea onClick={exibirContadores}> 
-                                    <CardMedia 
-                                        component="img"
-                                        height="165"
-                                        image={Contador}
-                                        alt="logo"
-                                    />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h6">
-                                            Contador
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Faça o cadastro dos contadores
-                                        </Typography>
-                                    </CardContent>
-                                </CardActionArea>
-                            </Card>
-
-                            <Card>
-                                <CardActionArea onClick={exibirFuncionarios}>
-                                    <CardMedia 
-                                        component="img"
-                                        height="165"
-                                        image={Funcionario}
-                                        alt="logo"
-                                    />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h6">
-                                            Funcionário
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Faça o cadastro dos funcionários
-                                        </Typography>
-                                    </CardContent>
-                                </CardActionArea>
-                            </Card>
-
-                            <Card>
-                                <CardActionArea>
-                                    <CardMedia 
-                                        component="img"
-                                        height="165"
-                                        image={SearchFile}
-                                        alt="logo"
-                                    />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h6">
-                                            Contracheque
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Visualize os seus últimos contracheques
-                                        </Typography>
-                                    </CardContent>
-                                </CardActionArea>
-                            </Card>
+                            {renderCards()}
                         </div>
                     </div>
                 ) : (
@@ -140,7 +189,7 @@ export const Home = () => {
                         )}
                         {tabelaSelecionada === 'contadores' && (
                             <>
-                                <h2>Conulta de Contadores</h2>
+                                <h2>Consulta de Contadores</h2>
                                 <TableContador />
                             </>
                         )}

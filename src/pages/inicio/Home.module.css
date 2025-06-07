@@ -87,4 +87,46 @@
     justify-content: space-around;
     gap: 20px;
 }
-  
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+
+  .contentInput {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .inputEmpregador,
+  .inputYear,
+  .inputDateMonth {
+    width: 260px;
+  }
+
+  .profile {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cards {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .cards .MuiCard-root {
+    width: 90%;
+  }
+
+  .contentMain {
+    align-items: center;
+    padding: 1rem;
+  }
+}
