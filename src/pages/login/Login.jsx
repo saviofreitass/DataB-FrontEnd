@@ -1,5 +1,5 @@
 import style from './Login.module.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Logo from '../../assets/Logo.png'
 import LogoBigData1 from '../../assets/LogoBigData1.png'
 import { Register } from '../../components/Register';
@@ -15,7 +15,6 @@ export const Login = () => {
     const [register, setRegister] = useState(false);
     const navigate = useNavigate();
     const [showAlert, setShowAlert] = useState(null);
-    const [showLinear, setLinear] = useState(false);
 
     const credenciais = {
         'email': email,
@@ -26,13 +25,13 @@ export const Login = () => {
         e.preventDefault(e)
         try {
             const response = await LoginService.post(credenciais)
-            localStorage.setItem('token', JSON.stringify(response.data.acessToken))
+            localStorage.setItem('token', response.data.acessToken)
 
             setErro("");
             setShowAlert('success')
             setTimeout(() => {
                 setShowAlert(null)
-                navigate('/home')
+                navigate('/home', { replace: true })
             }, 5000)
         } catch (error) {
             console.error("Erro ao tentar entrar no sistema", error)
@@ -45,6 +44,13 @@ export const Login = () => {
         }
     }
 
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        if(token){
+            navigate('/home', { replace: true })
+        }
+    }, [])
+
     const handleRegister = (e) => {
         e.preventDefault()
         setRegister(true)
@@ -54,7 +60,7 @@ export const Login = () => {
         <div className={style.container}>
             <main>
                 <div className={style.containerLogo}>
-                    <img src={LogoBigData1} alt="logo-marca" />
+                    <img src={Logo} alt="logo-marca" />
                 </div>
                 <div className={style.containerFilho}>
                     <h2>Bem vindo(a)!</h2>
