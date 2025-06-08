@@ -8,6 +8,8 @@ import Empregador from "../../assets/Empregador.svg"
 import Contador from '../../assets/Contador.svg'
 import Funcionario from '../../assets/Funcionario.svg'
 import SearchFile from '../../assets/SearchFile.svg'
+import Pagamento from '../../assets/Pagamento.svg'
+import Salario from '../../assets/Salario.svg'
 
 import { Sidebar } from "../../components/sidebar/Sidebar";
 import style from "./Home.module.css";
@@ -15,28 +17,36 @@ import { TableFuncionario } from "../../components/TableFuncionario/TableFuncion
 import { TableContador } from "../../components/TableContador/TableContador";
 
 import { decodeJWT } from "../../components/Utils/DecodeToken";
+import { TableSalario } from "../../components/TableSalario/TableSalario";
 
 export const Home = () => {
-    const [tabelaSelecionada, setTabelaSelecionada] = useState('');
-    const [userRole, setUserRole] = useState('');
+    const [tabelaSelecionada, setTabelaSelecionada] = useState('')
+    const [userRole, setUserRole] = useState('')
+    const [nomeUsuario, setNomeUsuario] = useState('')
+
 
     useEffect(() => {
-        const token = JSON.parse(localStorage.getItem('token'))
+        const token = localStorage.getItem('token')
         if(token){
             const payload = decodeJWT(token)
             if(payload?.tipo){
                 setUserRole(payload.tipo)
+                setNomeUsuario(payload.nome)
             }
         }
     }, [])
 
     const exibirFuncionarios = () => {
-        setTabelaSelecionada('funcionarios');
+        setTabelaSelecionada('funcionarios')
     };
 
     const exibirContadores = () => {
-        setTabelaSelecionada('contadores');
+        setTabelaSelecionada('contadores')
     };
+
+    const exibirTabelaSalario = () => {
+        setTabelaSelecionada('tabelaSalario')
+    }
 
     const renderCards = () => {
         if (userRole === 'ROLE_FUNCIONARIO') {
@@ -121,6 +131,25 @@ export const Home = () => {
                     </Card>
 
                     <Card>
+                        <CardActionArea onClick={exibirTabelaSalario}>
+                            <CardMedia 
+                                component="img"
+                                height="165"
+                                image={Salario}
+                                alt="logo"
+                            />
+                            <CardContent>
+                                <Typography gutterBottom variant="h6">
+                                    Tabela Salário
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                    Faça a folha de pagamento da sua empresa
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
+                    </Card>
+
+                    <Card>
                         <CardActionArea>
                             <CardMedia 
                                 component="img"
@@ -158,15 +187,15 @@ export const Home = () => {
                 <div className={style.content}>
                     <div className={style.contentInput}>
                         <input type="text" placeholder="Empregador" className={style.inputEmpregador} />
-                        <input type="text" placeholder="Ano" className={style.inputYear} />
-                        <input type="text" placeholder="Mês" className={style.inputDateMonth} />
+                        <input type="date" placeholder="Ano" className={style.inputYear} />
+                        <input type="date" placeholder="Mês" className={style.inputDateMonth} />
                     </div>
                     <div className={style.profile}>
                         <div>
                             <NotificationsNone sx={{color: 'var(--text-secund)'}}/>
                         </div>
                         <AccountCircle sx={{color: 'var(--text-secund)'}}/>
-                        <span className={style.profileName}>João Pedro Vidal</span>
+                        <span className={style.profileName}>{nomeUsuario}</span>
                     </div>
                 </div>
                 
@@ -191,6 +220,12 @@ export const Home = () => {
                             <>
                                 <h2>Consulta de Contadores</h2>
                                 <TableContador />
+                            </>
+                        )}
+                        {tabelaSelecionada === 'tabelaSalario' && (
+                            <>
+                                <h2>Tabela Salário</h2>
+                                <TableSalario />
                             </>
                         )}
                     </div>
