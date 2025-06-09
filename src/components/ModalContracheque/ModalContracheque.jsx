@@ -16,6 +16,19 @@ export const ModalContracheque = ({ open, onClose, funcionario }) => {
         setConfrimacaoAberta(false)
     }
 
+    /* const credenciais = {
+        'funcionario_id': id,
+        'contador_id':  naosei,
+        'data_pagamento': dataPagamento,
+        'data_ref_inicio': dataRefInicio,
+        'data_ref_fim': dataRefFim,
+        'salario_base': salarioBase,
+        'hora_extra': horaExtra,
+        'adicional_noturno': adicionalNoturno,
+        'comissoes': comissoes,
+        'beneficios': beneficios,
+    } */
+
     return (
         <Modal
             open={open}
