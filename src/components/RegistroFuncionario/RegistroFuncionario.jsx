@@ -5,13 +5,33 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { LinearDeterminate } from "../loading/LinearDeterminate";
 import FuncionarioService from "../../Services/FuncionarioService";
-
+import { decodeJWT } from "../../components/Utils/DecodeToken";
 
 export const RegistroFuncionario = ({ onCancelar }) => {
 
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
+    const [userId, setUserId] = useState('')
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const payload = decodeJWT(token);
+            if (payload?.id) {
+                setUserId(payload.id);
+
+                setDadosFuncionario((prev) => ({
+                    ...prev,
+                    contador: payload.id,
+                    usuarioCriacao: payload.id,
+                    usuarioAtualizacao: payload.id
+                }));
+            }
+        }
+    }, []);
+
 
     const [dadosFuncionario, setDadosFuncionario] = useState({
+        // contador: userId,
         nome: "",
         cpfcnpj: "",
         telefone: "",
@@ -21,14 +41,14 @@ export const RegistroFuncionario = ({ onCancelar }) => {
         salario: "",
         email: "",
         senha: "",
-        usuarioCriacao: "",
-        usuarioAtualizacao: ""
+        //  usuarioCriacao: "",
+        //  usuarioAtualizacao: ""
     })
 
     useEffect(() => {
-        if(mensagem.texto){
+        if (mensagem.texto) {
             const tempoMensagem = setTimeout(() => {
-                setMensagem({ tipo: '' , texto: ''})
+                setMensagem({ tipo: '', texto: '' })
             }, 4500)
             return () => clearTimeout(tempoMensagem)
         }
@@ -44,24 +64,38 @@ export const RegistroFuncionario = ({ onCancelar }) => {
 
     const handleSalvar = async () => {
         try {
-            
-            const dataAdmissao = new Date()
-            const dataFormatada = dataAdmissao.toISOString()
+
+            const dataAdmissaoISO = new Date(dadosFuncionario.dataAdmissao).toISOString()
 
             const payload = {
-                ...dadosFuncionario,
+                contador: dadosFuncionario.contador,
+                usuario: {
+                    email: dadosFuncionario.email,
+                    senha: dadosFuncionario.senha,
+                    tipoUsuario: "ROLE_FUNCIONARIO",
+                    usuarioCriacao: dadosFuncionario.usuarioCriacao || userId,
+                },
+                pessoa: {
+                    nome: dadosFuncionario.nome,
+                    cpfcnpj: dadosFuncionario.cpfcnpj,
+                    telefone: dadosFuncionario.telefone,
+                    ativo: true,
+                },
+                cargo: dadosFuncionario.cargo,
+                setor: dadosFuncionario.setor,
                 salario: parseFloat(dadosFuncionario.salario),
-                dataAdmissao: dataFormatada
+                dataAdmissao: dataAdmissaoISO,
             }
 
             const response = await FuncionarioService.insert(payload)
-            const mensagemSucesso = response.data?.mesage || 'Funcionário cadastrado com sucesso!'
+            const mensagemSucesso = response.data?.message || 'Funcionário cadastrado com sucesso!'
             setMensagem({ tipo: 'success', texto: mensagemSucesso })
         } catch (error) {
-            const mensagemErro = error.response?.data?.mesage || 'Erro ao cadastrar funcionário.'
+            const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar funcionário.'
             setMensagem({ tipo: 'error', texto: mensagemErro })
         }
     }
+
 
     return (
         <Box
@@ -78,14 +112,14 @@ export const RegistroFuncionario = ({ onCancelar }) => {
             }}
         >
             {mensagem.texto && (
-                
+
                 <Alert severity={mensagem.tipo}>
                     {mensagem.texto}
                 </Alert>
             )}
             <Box
                 sx={{
-                    display:'flex', 
+                    display: 'flex',
                     gap: 2
                 }}
             >
