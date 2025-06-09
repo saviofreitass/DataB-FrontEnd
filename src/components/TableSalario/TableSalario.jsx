@@ -3,6 +3,8 @@ import { Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip,
 import FuncionarioService from "../../Services/FuncionarioService";
 import { useEffect, useState } from "react";
 import { ModalContracheque } from "../ModalContracheque/ModalContracheque";
+import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
+import ContadorService from '../../Services/ContadorService'
 
 export const TableSalario = () => {
   const [listaFuncionario, setListaFuncionario] = useState([])
@@ -11,12 +13,39 @@ export const TableSalario = () => {
   const [selecionados, setSelecionados] = useState([])
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null)
   const [lancarSalario, setLancarSalario] = useState(false)
+  const [confirmacaoAberta, setConfrimacaoAberta] = useState(false)
+  const [mapaContadores, setMapaContadores] = useState({})
+
+  const handleAbrirConfirmacao = ({ open, onClose }) => {
+    setConfrimacaoAberta(true)
+  }
+
+  const handleFecharConfirmacao = () => {
+    setConfrimacaoAberta(false)
+  }
+
 
   const handleLancarSalario = (funcionario) => {
     setFuncionarioSelecionado(funcionario)
     setMostarModal(true)
   }
 
+  const buscarContador = async(id) => {
+    if (!id || mapaContadores[id]) return 
+      try {
+        const response = await ContadorService.getId(id)
+        setMapaContadores((prev) => ({
+          ...prev,
+          [id]: response.data.pessoa?.nome || 'Nome não encontrado'
+        }))
+      } catch (error) {
+        console.error(`Erro ao buscar o contador ${id}`, error)
+        setMapaContadores((prev) => ({
+          ...prev,
+          [id]: 'Erro ao buscar'
+        }))
+      }
+  }
 
   const carregarFuncionarios = async () => {
     try {
@@ -30,6 +59,14 @@ export const TableSalario = () => {
   useEffect(() => {
     carregarFuncionarios()
   }, [])
+
+  useEffect(() => {
+    listaFuncionario.forEach(f => {
+      if(f.contador){
+        buscarContador(f.contador)
+      }
+    })
+  }, [listaFuncionario])
 
   const formatarCPF = (cpf) => {
     if (!cpf) return '';
@@ -56,7 +93,10 @@ export const TableSalario = () => {
   const handleFecharModal = () => setMostarModal(false)
 
   return (
-    <TableContainer component={Paper} sx={{ width: 822, border: 1, borderColor: 'var(--blue-200)' }}>
+    <TableContainer 
+      component={Paper} 
+      sx={{ width: 822, border: 1, borderColor: 'var(--blue-200)' }}  
+    >
       <TextField
         onChange={(e) => setBusca(e.target.value)}
         placeholder="Digite o conteúdo de busca"
@@ -83,12 +123,12 @@ export const TableSalario = () => {
           <TableCell align="left" >CPF</TableCell>
           <TableCell align="left" >Nome</TableCell>
           <TableCell align="left" >Contador</TableCell>
-          <TableCell align="left" >Contador</TableCell>
+          <TableCell align="left" >Empregador</TableCell>
           <TableCell align="left" >Status</TableCell>
           <TableCell align="left" >Edit</TableCell>
           <TableCell align="left" >
             <Button
-              type='submit'
+              onClick={handleAbrirConfirmacao}
               sx={{
                 background: 'var(--blue-200)'
               }}
@@ -129,12 +169,12 @@ export const TableSalario = () => {
             </TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{formatarCPF(funcionario.pessoa.cpfcnpj)}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{funcionario.pessoa.nome}</TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}></TableCell>
+            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{mapaContadores[funcionario.contador || 'Carregando...']}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}></TableCell>
             <TableCell>
               <Chip
-                label={funcionario.ativo ? 'Ativo' : 'Inativo'}
-                color={funcionario.ativo ? 'success' : 'error'}
+                label={funcionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
+                color={funcionario.pessoa.ativo ? 'success' : 'error'}
                 size="small"
                 variant="outlined"
               />
@@ -153,10 +193,14 @@ export const TableSalario = () => {
             <TableCell></TableCell>
           </TableRow>
         ))}
-        <ModalContracheque 
-          open={mostrarModal} 
-          onClose={handleFecharModal} 
+        <ModalContracheque
+          open={mostrarModal}
+          onClose={handleFecharModal}
           funcionario={funcionarioSelecionado}
+        />
+        <ModalConfirmacao 
+          open={confirmacaoAberta}
+          onClose={handleFecharConfirmacao}
         />
       </TableBody>
     </TableContainer>

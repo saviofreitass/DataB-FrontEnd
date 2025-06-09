@@ -14,12 +14,14 @@ import axios from 'axios';
 import { Chip } from '@mui/material';
 import { UpdateFuncionario } from '../UpdateFuncionario/UpdateFuncionario';
 import FuncionarioService from '../../Services/FuncionarioService';
+import ContadorService from '../../Services/ContadorService'
 
 export const TableFuncionario = () => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [dadosFuncionario, setDadosFuncionario] = useState([])
   const [editarFuncionario, setEditarFuncionario] = useState(false)
   const [funcionarioSelciocionado, setFuncionarioSelecionado] = useState(null);
+  const [mapaContadores, setMapaContadores] = useState({})
 
   const handleAbrirRegistro = () => setMostrarRegistro(true);
   const handleFecharRegistro = () => setMostrarRegistro(false);
@@ -39,22 +41,25 @@ export const TableFuncionario = () => {
   }
 
   useEffect(() => {
-    carregarFuncionarios()
-  }, [])
-
-  const handleFecharEdicao = () => setEditarFuncionario(false);
-
-  useEffect(() => {
-    const carregarFuncionarios = async () => {
+    const carregarContadores = async () => {
       try {
-        const response = await FuncionarioService.get()
-        setDadosFuncionario(response.data)
+        const response = await ContadorService.get()
+        const mapa = {}
+        response.data.forEach(contador => {
+          mapa[contador.id] = contador.pessoa.nome
+        })
+        setMapaContadores(mapa)
       } catch (error) {
-        console.error("Erro ao buscar funcionários: ", error)
+        console.error("Erro ao buscar contadores: ", error)
       }
     }
+
     carregarFuncionarios()
+    carregarContadores()
   }, [])
+
+
+  const handleFecharEdicao = () => setEditarFuncionario(false);
 
   if (mostrarRegistro) {
     return <RegistroFuncionario onCancelar={handleFecharRegistro} />;
@@ -105,11 +110,11 @@ export const TableFuncionario = () => {
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.setor}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cargo}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.empregador}</TableCell>
-            <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{dadosFuncionario.contador}</TableCell>
+            <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{mapaContadores[dadosFuncionario.contador]}</TableCell>
             <TableCell >
               <Chip
-                label={dadosFuncionario.ativo ? 'Ativo' : 'Inativo'}
-                color={dadosFuncionario.ativo ? 'success' : 'error'}
+                label={dadosFuncionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
+                color={dadosFuncionario.pessoa.ativo ? 'success' : 'error'}
                 size="small"
                 variant="outlined"
               />
