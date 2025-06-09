@@ -15,9 +15,10 @@ import { Sidebar } from "../../components/sidebar/Sidebar";
 import style from "./Home.module.css";
 import { TableFuncionario } from "../../components/TableFuncionario/TableFuncionario";
 import { TableContador } from "../../components/TableContador/TableContador";
+import { TableSalario } from "../../components/TableSalario/TableSalario";
 
 import { decodeJWT } from "../../components/Utils/DecodeToken";
-import { TableSalario } from "../../components/TableSalario/TableSalario";
+import { TableContracheque } from "../../components/TableContracheque/TableContracheque";
 
 export const Home = () => {
     const [tabelaSelecionada, setTabelaSelecionada] = useState('')
@@ -46,6 +47,10 @@ export const Home = () => {
 
     const exibirTabelaSalario = () => {
         setTabelaSelecionada('tabelaSalario')
+    }
+
+    const exibirTabelaContracheque = () => {
+        setTabelaSelecionada('tabelaContraCheque')
     }
 
     const renderCards = () => {
@@ -150,7 +155,7 @@ export const Home = () => {
                     </Card>
 
                     <Card>
-                        <CardActionArea>
+                        <CardActionArea onClick={exibirTabelaContracheque}>
                             <CardMedia 
                                 component="img"
                                 height="165"
@@ -180,6 +185,7 @@ export const Home = () => {
                     voltarHome={() => setTabelaSelecionada('')} 
                     exibirFuncionarios={exibirFuncionarios} 
                     exibirContadores={exibirContadores}
+                    exibirTabelaSalario={exibirTabelaSalario}
                     isFuncionario={userRole === 'ROLE_FUNCIONARIO'}
                 />
             </aside>
@@ -226,6 +232,12 @@ export const Home = () => {
                             <>
                                 <h2>Tabela Salário</h2>
                                 <TableSalario />
+                            </>
+                        )}
+                        {tabelaSelecionada === 'tabelaContraCheque' && (
+                            <>
+                                <h2>Consulta de contracheques</h2>
+                                <TableContracheque />
                             </>
                         )}
                     </div>
