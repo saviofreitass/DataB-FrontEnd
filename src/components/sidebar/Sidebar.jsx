@@ -1,53 +1,75 @@
 import { useState } from 'react';
 import Icon from '../../assets/Logo.png';
 import style from './Sidebar.module.css';
-import { AbcTwoTone, AccessAlarm, Engineering, Home, HomeRepairService, ManageAccounts, PersonAddAlt1, RequestPage, ThreeDRotation, MonetizationOn } from '@mui/icons-material';
+import {
+    Home, HomeRepairService, ManageAccounts, Engineering,
+    RequestPage, MonetizationOn, Menu, ChevronLeft
+} from '@mui/icons-material';
 
-export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores }) => {
+export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores, isFuncionario, exibirTabelaSalario }) => {
     const [valor, setValor] = useState("");
+    const [encolhido, setEncolhido] = useState(false);
 
     return (
-        <div className={style.container}>  
-            <img src={Icon} alt="ícone logo marca" className={style.logo} />
-            <div className={style.cabeca}>
-                <span className={style.textoCabeca}>Folha</span>
-                <span className={style.textoCabeca}>Versão: 0.1.0</span>      
+        <div className={`${style.container} ${encolhido ? style.containerEncolhido : ''}`}>
+            <div className={style.topo}>
+                {!encolhido && <img src={Icon} alt="ícone logo marca" className={style.logo} />}
+                <button className={style.botaoToggle} onClick={() => setEncolhido(!encolhido)}>
+                    {encolhido ? <Menu /> : <ChevronLeft />}
+                </button>
             </div>
-            <div>
-                <input 
-                    type="text" 
-                    className={style.input}
-                    value={valor}
-                    onChange={(e) =>{
-                        setValor(e.target.value)
-                        console.log(e.target.value)
-                    }}
-                />
-            </div>
+
+            {!encolhido && (
+                <div className={style.cabeca}>
+                    <span className={style.textoCabeca}>Folha</span>
+                    <span className={style.textoCabeca}>Versão: 0.1.0</span>
+                </div>
+            )}
+
+            {!isFuncionario && !encolhido && (
+                <div>
+                    <input
+                        type="text"
+                        className={style.input}
+                        value={valor}
+                        onChange={(e) => setValor(e.target.value)}
+                    />
+                </div>
+            )}
+
             <div className={style.funcao} onClick={voltarHome}>
-                <Home className={style.icon}/>
-                <span className={style.textoFuncao}>Home</span>   
+                <Home className={style.icon} />
+                {!encolhido && <span className={style.textoFuncao}>Home</span>}
             </div>
+
+            {!isFuncionario && (
+                <>
+                    <div className={style.funcao}>
+                        <HomeRepairService className={style.icon} />
+                        {!encolhido && <span className={style.textoFuncao}>Empregador</span>}
+                    </div>
+                    <div className={style.funcao} onClick={exibirContadores}>
+                        <ManageAccounts className={style.icon} />
+                        {!encolhido && <span className={style.textoFuncao}>Contador</span>}
+                    </div>
+                    <div className={style.funcao} onClick={exibirFuncionarios}>
+                        <Engineering className={style.icon} />
+                        {!encolhido && <span className={style.textoFuncao}>Funcionário</span>}
+                    </div>
+                </>
+            )}
+
             <div className={style.funcao}>
-                <HomeRepairService className={style.icon}/>
-                <span className={style.textoFuncao}>Empregador</span>
+                <RequestPage className={style.icon} />
+                {!encolhido && <span className={style.textoFuncao}>Contracheque</span>}
             </div>
-            <div className={style.funcao} onClick={exibirContadores}>
-                <ManageAccounts className={style.icon}/>
-                <span className={style.textoFuncao}>Contador</span>
-            </div>
-            <div className={style.funcao} onClick={exibirFuncionarios}>
-                <Engineering className={style.icon}/>
-                <span className={style.textoFuncao}>Funcionário</span>
-            </div>
-            <div className={style.funcao}>
-              <RequestPage className={style.icon}/>
-              <span className={style.textoFuncao}>Contracheque</span>
-            </div>
-            <div className={style.funcao} > 
-                <MonetizationOn className={style.icon}/>
-                <span className={style.textoFuncao}>Tabela salário</span>
-            </div>
+
+            {!isFuncionario && (
+                <div className={style.funcao} onClick={exibirTabelaSalario}>
+                    <MonetizationOn className={style.icon} />
+                    {!encolhido && <span className={style.textoFuncao}>Tabela salário</span>}
+                </div>
+            )}
         </div>
     );
 };
