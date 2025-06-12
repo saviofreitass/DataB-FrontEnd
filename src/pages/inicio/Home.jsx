@@ -19,12 +19,22 @@ import { TableSalario } from "../../components/TableSalario/TableSalario";
 
 import { decodeJWT } from "../../components/Utils/DecodeToken";
 import { TableContracheque } from "../../components/TableContracheque/TableContracheque";
+import { TableEmpregador } from "../../components/TableEmpregador/TableEmpregador";
+import { DrawerConfigAccount } from "../../components/Drawer/DrawerConfigAccount";
 
 export const Home = () => {
     const [tabelaSelecionada, setTabelaSelecionada] = useState('')
     const [userRole, setUserRole] = useState('')
     const [nomeUsuario, setNomeUsuario] = useState('')
+    const [abrirDrawer, setAbrirDrawer] = useState(false) 
 
+    const handleAbrirDrawer = () => {
+        setAbrirDrawer(true)
+    }
+
+    const handleFecharDrawer = () => {
+        setAbrirDrawer(false)   
+    }
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -39,11 +49,11 @@ export const Home = () => {
 
     const exibirFuncionarios = () => {
         setTabelaSelecionada('funcionarios')
-    };
+    }
 
     const exibirContadores = () => {
         setTabelaSelecionada('contadores')
-    };
+    }
 
     const exibirTabelaSalario = () => {
         setTabelaSelecionada('tabelaSalario')
@@ -51,6 +61,10 @@ export const Home = () => {
 
     const exibirTabelaContracheque = () => {
         setTabelaSelecionada('tabelaContraCheque')
+    }
+
+    const exibirTabelaEmpregador = () => {
+        setTabelaSelecionada('tabelaEmpregador')
     }
 
     const renderCards = () => {
@@ -79,7 +93,7 @@ export const Home = () => {
             return (
                 <>
                     <Card>
-                        <CardActionArea>
+                        <CardActionArea onClick={exibirTabelaEmpregador}>
                             <CardMedia 
                                 component="img"
                                 height="165"
@@ -189,6 +203,7 @@ export const Home = () => {
                     isFuncionario={userRole === 'ROLE_FUNCIONARIO'}
                 />
             </aside>
+            {abrirDrawer && <DrawerConfigAccount open={abrirDrawer} onClose={handleFecharDrawer}/> }
             <main className={style.main}>
                 <div className={style.content}>
                     <div className={style.contentInput}>
@@ -200,7 +215,10 @@ export const Home = () => {
                         <div>
                             <NotificationsNone sx={{color: 'var(--text-secund)'}}/>
                         </div>
-                        <AccountCircle sx={{color: 'var(--text-secund)'}}/>
+                        <AccountCircle 
+                            sx={{color: 'var(--text-secund)'}}
+                            onClick={handleAbrirDrawer}
+                            />
                         <span className={style.profileName}>{nomeUsuario}</span>
                     </div>
                 </div>
@@ -238,6 +256,12 @@ export const Home = () => {
                             <>
                                 <h2>Consulta de contracheques</h2>
                                 <TableContracheque />
+                            </>
+                        )}
+                        {tabelaSelecionada === 'tabelaEmpregador' && (
+                            <>
+                                <h2>Consulta de empregadores</h2>
+                                <TableEmpregador />
                             </>
                         )}
                     </div>
