@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Add, Edit } from '@mui/icons-material';
+import { Add, Edit, Settings } from '@mui/icons-material';
 import { RegistroFuncionario } from '../RegistroFuncionario/RegistroFuncionario';
 import { useEffect } from 'react';
 import axios from 'axios';
@@ -15,13 +15,26 @@ import { Chip } from '@mui/material';
 import { UpdateFuncionario } from '../UpdateFuncionario/UpdateFuncionario';
 import FuncionarioService from '../../Services/FuncionarioService';
 import ContadorService from '../../Services/ContadorService'
+import { DrawerConfigFilter } from '../Drawer/DrawerConfigFilter';
+import { Cancel, CheckBox, Done } from "@mui/icons-material"
+import { Box, Drawer, FormControlLabel, FormGroup, IconButton } from "@mui/material"
 
-export const TableFuncionario = () => {
+export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [dadosFuncionario, setDadosFuncionario] = useState([])
   const [editarFuncionario, setEditarFuncionario] = useState(false)
   const [funcionarioSelciocionado, setFuncionarioSelecionado] = useState(null);
   const [mapaContadores, setMapaContadores] = useState({})
+  const [abriDrawer, setAbrirDrawer] = useState(false)
+
+  const handleOpenDrawer = () => {
+    setAbrirDrawer(true)
+  }
+
+  const handleCloseDrawer = () => {
+
+    setAbrirDrawer(false)
+  }
 
   const handleAbrirRegistro = () => setMostrarRegistro(true);
   const handleFecharRegistro = () => setMostrarRegistro(false);
@@ -62,7 +75,7 @@ export const TableFuncionario = () => {
   const handleFecharEdicao = () => setEditarFuncionario(false);
 
   if (mostrarRegistro) {
-    return <RegistroFuncionario onCancelar={handleFecharRegistro} />;
+    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={idEmpregador}/>;
   }
 
   const formatarCPF = (cpf) => {
@@ -73,30 +86,45 @@ export const TableFuncionario = () => {
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
   }
 
+  console.log("idEmpregador recebido no TableFuncionario:", idEmpregador)
+
   return (
     <TableContainer component={Paper} sx={{ width: 870, border: 1, borderColor: 'var(--blue-200)' }}>
-      <TableHead sx={{ minWidth: 650 }} aria-label='simple table'>
-        <TableRow>
-          <TableCell align='left'>CPF</TableCell>
-          <TableCell align='left'>Nome</TableCell>
-          <TableCell align='left'>Setor</TableCell>
-          <TableCell align='left'>Cargo</TableCell>
-          <TableCell align='left'>Empregador</TableCell>
-          <TableCell align='left'>Contador</TableCell>
-          <TableCell align='left'>Status</TableCell>
-          <TableCell align='left'>
-            <Add
-              sx={{
-                color: 'var(--blue-200)',
-                cursor: 'pointer',
-                borderRadius: 5,
-                ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
-              }}
-              onClick={handleAbrirRegistro}
-            />
-          </TableCell>
-        </TableRow>
-      </TableHead>
+      <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+        <TableHead>
+          <TableRow>
+            <TableCell align='left'>CPF</TableCell>
+            <TableCell align='left'>Nome</TableCell>
+            <TableCell align='left'>Setor</TableCell>
+            <TableCell align='left'>Cargo</TableCell>
+            <TableCell align='left'>Empregador</TableCell>
+            <TableCell align='left'>Contador</TableCell>
+            <TableCell align='left'>Status</TableCell>
+            <TableCell align='left'>
+              <Add
+                sx={{
+                  color: 'var(--blue-200)',
+                  cursor: 'pointer',
+                  borderRadius: 5,
+                  ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
+                }}
+                onClick={handleAbrirRegistro}
+              />
+            </TableCell>
+            <TableCell>
+              <Settings
+                sx={{
+                  color: 'var(--blue-200)',
+                  cursor: 'pointer',
+                  borderRadius: 5,
+                  ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
+                }}
+                onClick={handleOpenDrawer}
+              />
+            </TableCell>
+          </TableRow>
+        </TableHead>
+      </Table>
       <TableBody>
         {dadosFuncionario.map((dadosFuncionario) => (
           <TableRow
@@ -139,6 +167,12 @@ export const TableFuncionario = () => {
         funcionario={funcionarioSelciocionado}
         onUpdate={carregarFuncionarios}
       />}
+      {
+        <DrawerConfigFilter
+          open={abriDrawer}
+          onClose={handleCloseDrawer}
+        />
+      }
     </TableContainer>
   );
 };

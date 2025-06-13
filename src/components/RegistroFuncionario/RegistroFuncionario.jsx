@@ -7,8 +7,7 @@ import { LinearDeterminate } from "../loading/LinearDeterminate";
 import FuncionarioService from "../../Services/FuncionarioService";
 import { decodeJWT } from "../../components/Utils/DecodeToken";
 
-export const RegistroFuncionario = ({ onCancelar }) => {
-
+export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
     const [userId, setUserId] = useState('')
 
@@ -68,7 +67,8 @@ export const RegistroFuncionario = ({ onCancelar }) => {
             const dataAdmissaoISO = new Date(dadosFuncionario.dataAdmissao).toISOString()
 
             const payload = {
-                contador: dadosFuncionario.contador,
+                contadorId: dadosFuncionario.contador,
+                empregadorId: idEmpregadorId,
                 usuario: {
                     email: dadosFuncionario.email,
                     senha: dadosFuncionario.senha,
@@ -91,6 +91,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
             const mensagemSucesso = response.data?.message || 'Funcionário cadastrado com sucesso!'
             setMensagem({ tipo: 'success', texto: mensagemSucesso })
         } catch (error) {
+            console.error("deu erro aqui", error)
             const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar funcionário.'
             setMensagem({ tipo: 'error', texto: mensagemErro })
         }

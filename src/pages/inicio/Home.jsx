@@ -21,20 +21,30 @@ import { decodeJWT } from "../../components/Utils/DecodeToken";
 import { TableContracheque } from "../../components/TableContracheque/TableContracheque";
 import { TableEmpregador } from "../../components/TableEmpregador/TableEmpregador";
 import { DrawerConfigAccount } from "../../components/Drawer/DrawerConfigAccount";
+import EmpregadorService from "../../Services/EmpregadorService";
 
 export const Home = () => {
     const [tabelaSelecionada, setTabelaSelecionada] = useState('')
     const [userRole, setUserRole] = useState('')
     const [nomeUsuario, setNomeUsuario] = useState('')
     const [abrirDrawer, setAbrirDrawer] = useState(false) 
+    const [empregadores, setEmpregadores] = useState([])
+    const [empregadorSelecionado, setEmpregadorSelecionado] = useState('')
 
-    const handleAbrirDrawer = () => {
-        setAbrirDrawer(true)
+    const getEmpregadores = async () => {
+        console.log('passou aqui')
+        try {
+            const response = await EmpregadorService.GetByIdContador()
+            setEmpregadores(response.data)
+            console.log('Toma aqui seus empregadores', response.data)
+        } catch (error) {
+            console.error('Deu erro aqui, animal', error)
+        }
     }
 
-    const handleFecharDrawer = () => {
-        setAbrirDrawer(false)   
-    }
+    useEffect(()=> {
+        getEmpregadores()
+    }, [])
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -46,7 +56,14 @@ export const Home = () => {
             }
         }
     }, [])
+    
+    const handleAbrirDrawer = () => {
+        setAbrirDrawer(true)
+    }
 
+    const handleFecharDrawer = () => {
+        setAbrirDrawer(false)   
+    }
     const exibirFuncionarios = () => {
         setTabelaSelecionada('funcionarios')
     }
@@ -207,7 +224,18 @@ export const Home = () => {
             <main className={style.main}>
                 <div className={style.content}>
                     <div className={style.contentInput}>
-                        <input type="text" placeholder="Empregador" className={style.inputEmpregador} />
+                        <select 
+                            className={style.inputEmpregador}
+                            value={empregadorSelecionado}
+                            onChange={(e) => setEmpregadorSelecionado(e.target.value)}
+                        >
+                            <option value=''>Selecione um empregador</option>
+                            {empregadores.map((dadosEmpregador) => (
+                                <option key={dadosEmpregador.id} value={dadosEmpregador.id}>
+                                    {dadosEmpregador.razaoSocial}
+                                </option>
+                            ))}
+                        </select>
                         <input type="date" placeholder="Ano" className={style.inputYear} />
                         <input type="date" placeholder="Mês" className={style.inputDateMonth} />
                     </div>
@@ -237,7 +265,7 @@ export const Home = () => {
                         {tabelaSelecionada === 'funcionarios' && (
                             <>
                                 <h2>Consulta de Funcionários</h2>
-                                <TableFuncionario />
+                                <TableFuncionario idEmpregador={empregadorSelecionado}/>
                             </>
                         )}
                         {tabelaSelecionada === 'contadores' && (
