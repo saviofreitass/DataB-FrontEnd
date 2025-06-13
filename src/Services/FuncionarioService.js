@@ -12,6 +12,10 @@ class FuncionarioService {
     get(){
         return api.get(`/funcionario`)
     }
+
+    getByIdContador(id){
+        return api.get(`/contador/${id}/funcionarios`)
+    }
 }
 
 export default new FuncionarioService()

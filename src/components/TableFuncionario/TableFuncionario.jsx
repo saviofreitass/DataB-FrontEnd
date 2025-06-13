@@ -18,14 +18,28 @@ import ContadorService from '../../Services/ContadorService'
 import { DrawerConfigFilter } from '../Drawer/DrawerConfigFilter';
 import { Cancel, CheckBox, Done } from "@mui/icons-material"
 import { Box, Drawer, FormControlLabel, FormGroup, IconButton } from "@mui/material"
+import EmpregadorService from '../../Services/EmpregadorService';
+import { decodeJWT } from '../Utils/DecodeToken';
 
-export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
+export const TableFuncionario = ({ openDrawer, idEmpregador }) => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [dadosFuncionario, setDadosFuncionario] = useState([])
   const [editarFuncionario, setEditarFuncionario] = useState(false)
   const [funcionarioSelciocionado, setFuncionarioSelecionado] = useState(null);
   const [mapaContadores, setMapaContadores] = useState({})
   const [abriDrawer, setAbrirDrawer] = useState(false)
+  const [mapaEmpregadores, setMapaEmpregadores] = useState({})
+  const [userId, setUserId] = useState('')
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const payload = decodeJWT(token)
+      if (payload.id) {
+        setUserId(payload.id)
+      }
+    }
+  }, [])
 
   const handleOpenDrawer = () => {
     setAbrirDrawer(true)
@@ -44,14 +58,38 @@ export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
     setFuncionarioSelecionado(funcionario)
   }
 
+  useEffect(() => {
+    if (userId) {
+      carregarFuncionarios()
+    }
+  }, [userId])
+
   const carregarFuncionarios = async () => {
     try {
-      const response = await FuncionarioService.get()
+      const response = await FuncionarioService.getByIdContador(userId)
       setDadosFuncionario(response.data)
+      console.log('entrei aqui')
     } catch (error) {
+      console.log('mas cheguei aqui')
       console.error("Erro ao listar funcionários: ", error)
     }
   }
+
+    const carregarEmpregadores = async () => {
+      try {
+        const response = await EmpregadorService.GetByIdContador()
+        const mapa = {}
+        console.log(response.data)
+        response.data.forEach(emp => {
+          mapa[emp.id] = emp.razaoSocial
+        })
+        setMapaEmpregadores(mapa)
+      } catch (error) {
+        console.error("Erro ao buscar empregadores: ", error)
+      }
+    }
+
+
 
   useEffect(() => {
     const carregarContadores = async () => {
@@ -66,16 +104,16 @@ export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
         console.error("Erro ao buscar contadores: ", error)
       }
     }
-
     carregarFuncionarios()
     carregarContadores()
+    carregarEmpregadores()
   }, [])
 
 
   const handleFecharEdicao = () => setEditarFuncionario(false);
 
   if (mostrarRegistro) {
-    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={idEmpregador}/>;
+    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={idEmpregador} />;
   }
 
   const formatarCPF = (cpf) => {
@@ -86,7 +124,6 @@ export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
   }
 
-  console.log("idEmpregador recebido no TableFuncionario:", idEmpregador)
 
   return (
     <TableContainer component={Paper} sx={{ width: 870, border: 1, borderColor: 'var(--blue-200)' }}>
@@ -128,7 +165,7 @@ export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
       <TableBody>
         {dadosFuncionario.map((dadosFuncionario) => (
           <TableRow
-            key={dadosFuncionario.cpfcnpj}
+            key={dadosFuncionario.pessoa.cpfcnpj}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>
@@ -137,7 +174,7 @@ export const TableFuncionario = ({ openDrawer, idEmpregador}) => {
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.pessoa.nome}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.setor}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cargo}</TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.empregador}</TableCell>
+            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{mapaEmpregadores[dadosFuncionario.empregador?.id]}</TableCell>
             <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{mapaContadores[dadosFuncionario.contador]}</TableCell>
             <TableCell >
               <Chip
