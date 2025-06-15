@@ -32,11 +32,9 @@ export const Home = () => {
     const [empregadorSelecionado, setEmpregadorSelecionado] = useState('')
 
     const getEmpregadores = async () => {
-        console.log('passou aqui')
         try {
             const response = await EmpregadorService.GetByIdContador()
             setEmpregadores(response.data)
-            console.log('Toma aqui seus empregadores', response.data)
         } catch (error) {
             console.error('Deu erro aqui, animal', error)
         }
@@ -244,7 +242,7 @@ export const Home = () => {
                             <NotificationsNone sx={{color: 'var(--text-secund)'}}/>
                         </div>
                         <AccountCircle 
-                            sx={{color: 'var(--text-secund)'}}
+                            sx={{color: 'var(--text-secund)', cursor: 'pointer' }}
                             onClick={handleAbrirDrawer}
                             />
                         <span className={style.profileName}>{nomeUsuario}</span>
