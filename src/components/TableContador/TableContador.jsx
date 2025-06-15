@@ -29,7 +29,7 @@ export const TableContador = () => {
   }, [])
 
   return (
-    <TableContainer component={Paper} sx={{ width: 650, border: 1, borderColor: 'var(--blue-200)' }}>
+    <TableContainer component={Paper} sx={{ width: 880, border: 1, borderColor: 'var(--blue-200)' }}>
       <TableHead sx={{ minWidth: 850 }} aria-label='simple table'>
         <TableRow>
           <TableCell align='left'>CPF</TableCell>

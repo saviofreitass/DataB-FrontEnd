@@ -1,72 +1,50 @@
 import { Add, CheckBox, CheckBoxOutlineBlank, Edit, SaveAlt, Search } from "@mui/icons-material";
 import { Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, TextField, InputAdornment, Button, FormControlLabel } from "@mui/material";
+
 import FuncionarioService from "../../Services/FuncionarioService";
-import { useEffect, useState } from "react";
-import { ModalContracheque } from "../ModalContracheque/ModalContracheque";
-import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
+import ContrachequeService from '../../Services/ContrachequeService';
+import EmpregadorService from '../../Services/EmpregadorService';
 import ContadorService from '../../Services/ContadorService'
 
+import { useEffect, useState } from "react";
+
+import { ModalContracheque } from "../ModalContracheque/ModalContracheque";
+import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
+
+import { decodeJWT } from '../Utils/DecodeToken'
+import { ModalInfo } from "../ModalSucesso/ModalInfo";
+
+
 export const TableSalario = () => {
-  const [listaFuncionario, setListaFuncionario] = useState([])
+
+  const [dadosFuncionario, setDadosFuncionario] = useState([])
   const [mostrarModal, setMostarModal] = useState(false)
   const [busca, setBusca] = useState('')
   const [selecionados, setSelecionados] = useState([])
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null)
-  const [lancarSalario, setLancarSalario] = useState(false)
   const [confirmacaoAberta, setConfrimacaoAberta] = useState(false)
-  const [mapaContadores, setMapaContadores] = useState({})
+  const [contadorId, setContadorId] = useState('')
+  const [dadosContador, setDadosContador] = useState([])
+  const [mapaEmpregadores, setMapaEmpregadores] = useState({})
+  const [empregadores, setEmpregadores] = useState([])
+  const [enviando, setEnviando] = useState(false)
+  const [sucessoAberto, setSucessoAberto] = useState(false)
 
-  const handleAbrirConfirmacao = ({ open, onClose }) => {
+  const handleAbrirConfirmacao = () => {
     setConfrimacaoAberta(true)
   }
 
   const handleFecharConfirmacao = () => {
     setConfrimacaoAberta(false)
   }
-
-
+ 
   const handleLancarSalario = (funcionario) => {
     setFuncionarioSelecionado(funcionario)
     setMostarModal(true)
   }
 
-  const buscarContador = async(id) => {
-    if (!id || mapaContadores[id]) return 
-      try {
-        const response = await ContadorService.getId(id)
-        setMapaContadores((prev) => ({
-          ...prev,
-          [id]: response.data.pessoa?.nome || 'Nome não encontrado'
-        }))
-      } catch (error) {
-        console.error(`Erro ao buscar o contador ${id}`, error)
-        setMapaContadores((prev) => ({
-          ...prev,
-          [id]: 'Erro ao buscar'
-        }))
-      }
-  }
-
-  const carregarFuncionarios = async () => {
-    try {
-      const response = await FuncionarioService.get()
-      setListaFuncionario(response.data)
-    } catch (error) {
-      console.error("Erro ao listar funcionários: ", error)
-    }
-  }
-
-  useEffect(() => {
-    carregarFuncionarios()
-  }, [])
-
-  useEffect(() => {
-    listaFuncionario.forEach(f => {
-      if(f.contador){
-        buscarContador(f.contador)
-      }
-    })
-  }, [listaFuncionario])
+  const handleAbrirModal = () => setMostarModal(true)
+  const handleFecharModal = () => setMostarModal(false)
 
   const formatarCPF = (cpf) => {
     if (!cpf) return '';
@@ -76,7 +54,59 @@ export const TableSalario = () => {
       .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   }
 
-  const listaFiltrada = listaFuncionario.filter(f =>
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const payload = decodeJWT(token)
+      setContadorId(payload.id)
+    }
+  }, [])
+
+  const carregarFuncionarios = async () => {
+    try {
+      if (contadorId) {
+        const response = await FuncionarioService.getByIdContador(contadorId)
+        setDadosFuncionario(response.data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar funcionários:', error)
+    }
+  }
+
+  const carregarContador = async () => {
+    try {
+      if (contadorId) {
+        const response = await ContadorService.getId(contadorId)
+        setDadosContador(response.data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar contador:', error)
+    }
+  }
+
+  const carregarEmpregadores = async () => {
+    try {
+      if (contadorId) {
+        const response = await EmpregadorService.GetByIdContador()
+        setEmpregadores(response.data)
+        const mapa = {}
+        response.data.forEach(emp => {
+          mapa[emp.id] = emp.razaoSocial
+        })
+        setMapaEmpregadores(mapa)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar empregadores:', error)
+    }
+  }
+
+  useEffect(() => {
+    carregarFuncionarios()
+    carregarContador()
+    carregarEmpregadores()
+  }, [contadorId])
+
+  const listaFiltrada = dadosFuncionario.filter(f =>
     f.pessoa.nome.toLowerCase().includes(busca.toLowerCase()) ||
     formatarCPF(f.pessoa.cpfcnpj).includes(busca)
   )
@@ -84,18 +114,58 @@ export const TableSalario = () => {
   const handleSelecionados = (id) => {
     setSelecionados((prev) =>
       prev.includes(id)
-        ? prev.filter(item => item != id)
+        ? prev.filter(item => item !== id)
         : [...prev, id]
     )
   }
 
-  const handleAbrirModal = () => setMostarModal(true)
-  const handleFecharModal = () => setMostarModal(false)
+  const enviarFolhasSelecionadas = async () => {
+    if (selecionados.length === 0) {
+      alert('Selecione pelo menos um funcionário para enviar os contracheques')
+      return
+    }
+
+    setEnviando(true)
+    try {
+      const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
+
+      const contrachequesParaEnviar = contrachequesSalvos.filter(cc =>
+        selecionados.includes(cc.funcId))
+
+      if (contrachequesParaEnviar.length === 0) {
+        alert('Nenhum contracheque encontrado para os funcionários selecionados')
+        return
+      }
+      for (const contracheque of contrachequesParaEnviar) {
+        try {
+          await ContrachequeService.Inserir(contracheque)
+          console.log(`Contracheque do funcionário ${contracheque.funcId} enviado com sucesso`)
+        } catch (error) {
+          console.error(`Erro ao enviar contracheque do funcionário ${contracheque.funcId}:`, error)
+        }
+      }
+
+      const contrachequesRestantes = contrachequesSalvos.filter(cc =>
+        !selecionados.includes(cc.funcId)
+      )
+      localStorage.setItem('contracheques', JSON.stringify(contrachequesRestantes))
+
+
+      setSucessoAberto(true)
+      setSelecionados([])
+    } catch (error) {
+      console.error('Erro ao enviar folhas de pagamento:', error)
+      alert('Ocorreu um erro ao enviar as folhas de pagamento')
+    } finally {
+      setEnviando(false)
+      setConfrimacaoAberta(false)
+    }
+  }
 
   return (
-    <TableContainer 
-      component={Paper} 
-      sx={{ width: 822, border: 1, borderColor: 'var(--blue-200)' }}  
+    <TableContainer
+      component={Paper}
+      sx={{ width: 880, border: 1, borderColor: 'var(--blue-200)' }}
     >
       <TextField
         onChange={(e) => setBusca(e.target.value)}
@@ -119,14 +189,14 @@ export const TableSalario = () => {
       />
       <TableHead>
         <TableRow>
-          <TableCell align="left" >Selec</TableCell>
-          <TableCell align="left" >CPF</TableCell>
-          <TableCell align="left" >Nome</TableCell>
-          <TableCell align="left" >Contador</TableCell>
-          <TableCell align="left" >Empregador</TableCell>
-          <TableCell align="left" >Status</TableCell>
-          <TableCell align="left" >Edit</TableCell>
-          <TableCell align="left" >
+          <TableCell align="left">Selec</TableCell>
+          <TableCell align="left">CPF</TableCell>
+          <TableCell align="left">Nome</TableCell>
+          <TableCell align="left">Contador</TableCell>
+          <TableCell align="left">Empregador</TableCell>
+          <TableCell align="left">Status</TableCell>
+          <TableCell align="left">Edit</TableCell>
+          <TableCell align="left">
             <Button
               onClick={handleAbrirConfirmacao}
               sx={{
@@ -135,8 +205,9 @@ export const TableSalario = () => {
               variant="contained"
               color="primary"
               startIcon={<SaveAlt />}
+              disabled={enviando || selecionados.length === 0}
             >
-              Enviar
+              {enviando ? 'Enviando...' : 'Enviar'}
             </Button>
           </TableCell>
         </TableRow>
@@ -169,8 +240,8 @@ export const TableSalario = () => {
             </TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{formatarCPF(funcionario.pessoa.cpfcnpj)}</TableCell>
             <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{funcionario.pessoa.nome}</TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{mapaContadores[funcionario.contador || 'Carregando...']}</TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}></TableCell>
+            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosContador?.pessoa?.nome}</TableCell>
+            <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{mapaEmpregadores[funcionario.empregadorId] || 'Não encontrado'}</TableCell>
             <TableCell>
               <Chip
                 label={funcionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
@@ -197,10 +268,19 @@ export const TableSalario = () => {
           open={mostrarModal}
           onClose={handleFecharModal}
           funcionario={funcionarioSelecionado}
+          empregador={empregadores.find(emp => emp.id === funcionarioSelecionado?.empregadorId)}
         />
-        <ModalConfirmacao 
+        <ModalConfirmacao
           open={confirmacaoAberta}
           onClose={handleFecharConfirmacao}
+          onConfirm={enviarFolhasSelecionadas}
+          title="Confirmar Envio"
+          message={`Deseja enviar os contracheques dos ${selecionados.length} funcionários selecionados?`}
+          subMessage="Esta ação fará o envio da folha de pagamento de todos os funcionários selecionados!"
+        />
+        <ModalInfo
+          open={sucessoAberto}
+          onClose={() => setSucessoAberto(false)}
         />
       </TableBody>
     </TableContainer>

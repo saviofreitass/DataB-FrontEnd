@@ -36,7 +36,7 @@ export const TableEmpregador = () => {
 
     return (
         <TableContainer component={Paper} sx={{ width: 870, border: 1, borderColor: 'var(--blue-200)' }}>
-            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+            <Table  aria-label='simple table'>
                 <TableHead>
                     <TableRow>
                         <TableCell align="left">CNPJ</TableCell>

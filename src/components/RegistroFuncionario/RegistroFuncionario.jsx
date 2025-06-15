@@ -10,6 +10,20 @@ import { decodeJWT } from "../../components/Utils/DecodeToken";
 export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
     const [userId, setUserId] = useState('')
+    const [dadosFuncionario, setDadosFuncionario] = useState({
+        contador: "",
+        nome: "",
+        cpfcnpj: "",
+        telefone: "",
+        cargo: "",
+        setor: "",
+        dataAdmissao: "",
+        salario: "",
+        email: "",
+        senha: "",
+        usuarioCriacao: "",
+        usuarioAtualizacao: ""
+    })
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -29,20 +43,6 @@ export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
     }, []);
 
 
-    const [dadosFuncionario, setDadosFuncionario] = useState({
-        // contador: userId,
-        nome: "",
-        cpfcnpj: "",
-        telefone: "",
-        cargo: "",
-        setor: "",
-        dataAdmissao: "",
-        salario: "",
-        email: "",
-        senha: "",
-        //  usuarioCriacao: "",
-        //  usuarioAtualizacao: ""
-    })
 
     useEffect(() => {
         if (mensagem.texto) {
@@ -236,24 +236,6 @@ export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    size="small"
-                    sx={{ ...inputStyle, flex: 1 }}
-                />
-                <TextField
-                    required
-                    name="usuarioCriacao"
-                    value={dadosFuncionario.usuarioCriacao}
-                    onChange={handleChange}
-                    label="Usuario"
-                    size="small"
-                    sx={{ ...inputStyle, flex: 1 }}
-                />
-                <TextField
-                    required
-                    name="usuarioAtualizacao"
-                    value={dadosFuncionario.usuarioAtualizacao}
-                    onChange={handleChange}
-                    label="Usuario"
                     size="small"
                     sx={{ ...inputStyle, flex: 1 }}
                 />
