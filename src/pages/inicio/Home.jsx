@@ -215,6 +215,7 @@ export const Home = () => {
                     exibirFuncionarios={exibirFuncionarios} 
                     exibirContadores={exibirContadores}
                     exibirTabelaSalario={exibirTabelaSalario}
+                    exibirTabelaEmpregador={exibirTabelaEmpregador}
                     isFuncionario={userRole === 'ROLE_FUNCIONARIO'}
                 />
             </aside>
