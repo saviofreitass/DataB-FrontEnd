@@ -86,6 +86,7 @@ export const TableEmpregador = () => {
                                     }}
                                 />
                             </TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
