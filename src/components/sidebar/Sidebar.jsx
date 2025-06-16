@@ -6,7 +6,7 @@ import {
     RequestPage, MonetizationOn, Menu, ChevronLeft
 } from '@mui/icons-material';
 
-export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores, isFuncionario, exibirTabelaSalario, exibirTabelaEmpregador }) => {
+export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores, isFuncionario, exibirTabelaSalario, exibirTabelaEmpregador, exibirTabelaContracheque }) => {
     const [valor, setValor] = useState("");
     const [encolhido, setEncolhido] = useState(false);
 
@@ -59,7 +59,7 @@ export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores, isFu
                 </>
             )}
 
-            <div className={style.funcao}>
+            <div className={style.funcao} onClick={exibirTabelaContracheque}>
                 <RequestPage className={style.icon} />
                 {!encolhido && <span className={style.textoFuncao}>Contracheque</span>}
             </div>

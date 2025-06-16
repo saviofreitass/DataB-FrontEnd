@@ -1,9 +1,14 @@
 import { Cancel, Done, SaveAlt } from "@mui/icons-material";
-import { Box, Button, Modal, Typography } from "@mui/material";
+import { Alert, Box, Button, Modal, Typography } from "@mui/material";
 
-export const ModalConfirmacao = ({ open, onClose, onConfirm }) => {
-    console.log("ModalConfirmacao aberto?", open);
-
+export const ModalConfirmacao = ({
+    open,
+    onClose,
+    onConfirm,
+    title = 'Confirmação',
+    message = 'Tem certeza que seja realizar essa ação?',
+    subMessage = ''
+}) => {
     return (
         <Modal
             open={!!open}
@@ -25,19 +30,44 @@ export const ModalConfirmacao = ({ open, onClose, onConfirm }) => {
                     gap: 2,
                     width: 400,
                     outline: 'none',
+                    textAlign: 'center',
                 }}
             >
-                <Typography>
-                    Tem certeza que deseja salvar esses dados preenchidos?
+                <Typography variant="h6" component="h2"
+                    sx={{ color: 'var(--blue-300)' }}
+                >
+                    {title}
                 </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: '100%'
+                }}>
+                    <Typography sx={{ textAlign: 'center', width: '100%' }}>
+                        {message}
+                    </Typography>
+                {subMessage && (
+                    <Typography variant="h6" sx={{
+                        textAlign: 'center',
+                        width: '100%',
+                        marginTop: 1
+                    }}>
+                        <Alert
+                            severity="warning"
+                        >
+                            {subMessage}
+                        </Alert>
+                    </Typography>
+                )}                    
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, width: '100%' }}>
                     <Button
                         sx={{ background: 'var(--ativo)' }}
                         variant="contained"
                         color="primary"
                         startIcon={<Done />}
                         onClick={() => {
-                            console.log("Dados confirmados!");
                             onConfirm();
                             onClose();
                         }}

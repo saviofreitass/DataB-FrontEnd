@@ -86,7 +86,9 @@ export const Home = () => {
         if (userRole === 'ROLE_FUNCIONARIO') {
             return (
                 <Card>
-                    <CardActionArea>
+                    <CardActionArea
+                        onClick={exibirTabelaContracheque}
+                    >
                         <CardMedia 
                             component="img"
                             height="165"
@@ -216,6 +218,7 @@ export const Home = () => {
                     exibirContadores={exibirContadores}
                     exibirTabelaSalario={exibirTabelaSalario}
                     exibirTabelaEmpregador={exibirTabelaEmpregador}
+                    exibirTabelaContracheque={exibirTabelaContracheque}
                     isFuncionario={userRole === 'ROLE_FUNCIONARIO'}
                 />
             </aside>

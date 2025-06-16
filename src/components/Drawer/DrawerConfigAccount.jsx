@@ -1,22 +1,33 @@
-import { Cancel, CheckBox, Done, Logout } from "@mui/icons-material"
-import { Box, Checkbox, Divider, Drawer, FormControlLabel, FormGroup, IconButton, Typography } from "@mui/material"
-import { useState } from "react"
+import { Cancel, Logout } from "@mui/icons-material"
+import { Box, Divider, Drawer, IconButton, Typography } from "@mui/material"
+import { useState } from "react";
 import { useNavigate } from "react-router-dom"
+import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao"
 
 export const DrawerConfigAccount = ({ open, onClose }) => {
+    const [modalAberto, setModalAberto] = useState(false)
 
     const navigate = useNavigate()
+
+    const handleAbrirModal = () => {
+        setModalAberto(true)
+    }
+
+    const handleFecharModal = () => {
+        setModalAberto(false)
+    }
 
     const handleSairDaConta = () => {
         localStorage.clear()
         navigate('/')
+        handleFecharModal()
     }
 
     return (
         <Drawer
             anchor="right"
             open={open}
-            onClose={onclose}
+            onClose={onClose}
         >
             <Box
                 sx={{
@@ -52,13 +63,21 @@ export const DrawerConfigAccount = ({ open, onClose }) => {
                             backgroundColor: 'transparent'
                         }
                     }}
-                    onClick={handleSairDaConta}
+                    onClick={handleAbrirModal}
                 >
                     <Logout />
                     <Typography>Sair da conta</Typography>
                 </IconButton>
 
             </Box>
+            <ModalConfirmacao
+                open={modalAberto}
+                onClose={handleFecharModal}
+                onConfirm={handleSairDaConta}
+                title="Sair da conta" 
+                message="Você deseja sair da conta?"
+                subMessage="Essa ação te redirecionará para a página de login!"
+            />
         </Drawer>
     )
 }

@@ -1,5 +1,6 @@
-import { Add, CheckBox, CheckBoxOutlineBlank, Edit, SaveAlt, Search } from "@mui/icons-material";
-import { Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, TextField, InputAdornment, Button, FormControlLabel } from "@mui/material";
+import { CheckBox, CheckBoxOutlineBlank, Edit, PendingOutlined, SaveAlt, Search } from "@mui/icons-material";
+import { Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, TextField, InputAdornment, Button } from "@mui/material";
+import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 
 import FuncionarioService from "../../Services/FuncionarioService";
 import ContrachequeService from '../../Services/ContrachequeService';
@@ -12,7 +13,7 @@ import { ModalContracheque } from "../ModalContracheque/ModalContracheque";
 import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
 
 import { decodeJWT } from '../Utils/DecodeToken'
-import { ModalInfo } from "../ModalSucesso/ModalInfo";
+import { ModalInfo } from "../ModalInfo/ModalInfo";
 
 
 export const TableSalario = () => {
@@ -29,6 +30,9 @@ export const TableSalario = () => {
   const [empregadores, setEmpregadores] = useState([])
   const [enviando, setEnviando] = useState(false)
   const [sucessoAberto, setSucessoAberto] = useState(false)
+  const [mensagem, setMensagem] = useState('')
+  const [tipoModal, setTipoModal] = useState('sucesso')
+  const [statusEnvio, setEnvioStatus] = useState({})
 
   const handleAbrirConfirmacao = () => {
     setConfrimacaoAberta(true)
@@ -37,7 +41,7 @@ export const TableSalario = () => {
   const handleFecharConfirmacao = () => {
     setConfrimacaoAberta(false)
   }
- 
+
   const handleLancarSalario = (funcionario) => {
     setFuncionarioSelecionado(funcionario)
     setMostarModal(true)
@@ -121,52 +125,82 @@ export const TableSalario = () => {
 
   const enviarFolhasSelecionadas = async () => {
     if (selecionados.length === 0) {
-      alert('Selecione pelo menos um funcionário para enviar os contracheques')
+      setMensagem('Selecione pelo menos um funcionário para enviar os contracheques.')
+      setTipoModal('erro')
+      setSucessoAberto(true)
       return
     }
 
     setEnviando(true)
-    try {
-      const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
+    setConfrimacaoAberta(false)
 
-      const contrachequesParaEnviar = contrachequesSalvos.filter(cc =>
-        selecionados.includes(cc.funcId))
+    const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || [];
+    const contrachequesParaEnviar = contrachequesSalvos.filter(cc =>
+      selecionados.includes(cc.funcId)
+    );
 
-      if (contrachequesParaEnviar.length === 0) {
-        alert('Nenhum contracheque encontrado para os funcionários selecionados')
-        return
-      }
-      for (const contracheque of contrachequesParaEnviar) {
-        try {
-          await ContrachequeService.Inserir(contracheque)
-          console.log(`Contracheque do funcionário ${contracheque.funcId} enviado com sucesso`)
-        } catch (error) {
-          console.error(`Erro ao enviar contracheque do funcionário ${contracheque.funcId}:`, error)
-        }
-      }
-
-      const contrachequesRestantes = contrachequesSalvos.filter(cc =>
-        !selecionados.includes(cc.funcId)
-      )
-      localStorage.setItem('contracheques', JSON.stringify(contrachequesRestantes))
-
-
+    if (contrachequesParaEnviar.length === 0) {
+      setMensagem('Nenhum contracheque encontrado para os funcionários selecionados!')
+      setTipoModal('erro')
       setSucessoAberto(true)
-      setSelecionados([])
-    } catch (error) {
-      console.error('Erro ao enviar folhas de pagamento:', error)
-      alert('Ocorreu um erro ao enviar as folhas de pagamento')
-    } finally {
       setEnviando(false)
-      setConfrimacaoAberta(false)
+      return
     }
+
+    const erros = [];
+    const enviadosComSucesso = []
+
+    for (const contracheque of contrachequesParaEnviar) {
+      try {
+        const resposta = await ContrachequeService.Inserir(contracheque)
+
+        if (resposta?.data?.success === false) {
+          throw new Error(resposta.data.message || 'Erro no backend')
+        }
+        enviadosComSucesso.push(contracheque.funcId);
+        setEnvioStatus(prev => ({ ...prev, [contracheque.funcId]: 'success' }))
+      } catch (error) {
+        const mensagemErro = error?.response?.data?.message || error?.message || 'Erro desconhecido'
+
+        erros.push({
+          funcId: contracheque.funcId,
+          mensagem: mensagemErro
+        })
+        setEnvioStatus(prev => ({ ...prev, [contracheque.funcId]: 'error' }))
+      }
+    }
+
+    if (enviadosComSucesso.length > 0) {
+      const contrachequesRestantes = contrachequesSalvos.filter(cc =>
+        !enviadosComSucesso.includes(cc.funcId)
+      );
+      localStorage.setItem('contracheques', JSON.stringify(contrachequesRestantes))
+    }
+
+    if (erros.length === 0) {
+      setMensagem('Folha de pagamento enviada com sucesso!');
+      setTipoModal('sucesso');
+      setSelecionados([]);
+    } else if (enviadosComSucesso.length === 0) {
+      setMensagem('Falha ao enviar todos os contracheques. Verifique e tente novamente.')
+      setTipoModal('erro')
+    } else {
+      setMensagem('Alguns contracheques foram enviados, mas ocorreram erros em outros. Verifique os logs.')
+      setTipoModal('aviso')
+    }
+
+    setSucessoAberto(true)
+    setEnviando(false)
+  };
+
+
+  const handleFecharModalInfo = () => {
+    setSucessoAberto(false)
+    setMensagem('')
   }
 
   return (
-    <TableContainer
-      component={Paper}
-      sx={{ width: 880, border: 1, borderColor: 'var(--blue-200)' }}
-    >
+    <>
       <TextField
         onChange={(e) => setBusca(e.target.value)}
         placeholder="Digite o conteúdo de busca"
@@ -174,10 +208,10 @@ export const TableSalario = () => {
         sx={{
           ...inputStyle,
           flex: 1,
-          width: '100%',
+          width: '1183px',
           marginTop: '20px',
           borderLeft: 'none',
-          borderRight: 'none'
+          borderRight: 'none',
         }}
         InputProps={{
           endAdornment: (
@@ -187,103 +221,120 @@ export const TableSalario = () => {
           )
         }}
       />
-      <TableHead>
-        <TableRow>
-          <TableCell align="left">Selec</TableCell>
-          <TableCell align="left">CPF</TableCell>
-          <TableCell align="left">Nome</TableCell>
-          <TableCell align="left">Contador</TableCell>
-          <TableCell align="left">Empregador</TableCell>
-          <TableCell align="left">Status</TableCell>
-          <TableCell align="left">Edit</TableCell>
-          <TableCell align="left">
-            <Button
-              onClick={handleAbrirConfirmacao}
-              sx={{
-                background: 'var(--blue-200)'
-              }}
-              variant="contained"
-              color="primary"
-              startIcon={<SaveAlt />}
-              disabled={enviando || selecionados.length === 0}
-            >
-              {enviando ? 'Enviando...' : 'Enviar'}
-            </Button>
-          </TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {listaFiltrada.map((funcionario) => (
-          <TableRow key={funcionario.id}>
-            <TableCell>
-              {selecionados.includes(funcionario.id) ? (
-                <CheckBox
-                  onClick={() => handleSelecionados(funcionario.id)}
-                  sx={{
-                    color: 'var(--ativo)',
-                    cursor: 'pointer',
-                    borderRadius: 5,
-                    ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
-                  }}
+      <TableContainer
+        component={Paper}
+        sx={{ width: 1183, border: 1, borderColor: 'var(--blue-200)' }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell align="left">Selec</TableCell>
+            <TableCell align="left">CPF</TableCell>
+            <TableCell align="left">Nome</TableCell>
+            <TableCell align="left">Contador</TableCell>
+            <TableCell align="left">Empregador</TableCell>
+            <TableCell align="left">Status</TableCell>
+            <TableCell align="left">Edit</TableCell>
+            <TableCell align="left">Log</TableCell>
+            <TableCell align="left">
+              <Button
+                onClick={handleAbrirConfirmacao}
+                sx={{
+                  background: 'var(--blue-200)'
+                }}
+                variant="contained"
+                color="primary"
+                startIcon={<SaveAlt />}
+                disabled={enviando || selecionados.length === 0}
+              >
+                {enviando ? 'Enviando...' : 'Enviar'}
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {listaFiltrada.map((funcionario) => (
+            <TableRow key={funcionario.id}>
+              <TableCell>
+                {selecionados.includes(funcionario.id) ? (
+                  <CheckBox
+                    onClick={() => handleSelecionados(funcionario.id)}
+                    sx={{
+                      color: 'var(--ativo)',
+                      cursor: 'pointer',
+                      borderRadius: 5,
+                      ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
+                    }}
+                  />
+                ) : (
+                  <CheckBoxOutlineBlank
+                    onClick={() => handleSelecionados(funcionario.id)}
+                    sx={{
+                      color: 'var(--blue-200)',
+                      cursor: 'pointer',
+                      borderRadius: 5,
+                      ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
+                    }}
+                  />
+                )}
+              </TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{formatarCPF(funcionario.pessoa.cpfcnpj)}</TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{funcionario.pessoa.nome}</TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosContador?.pessoa?.nome}</TableCell>
+              <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{mapaEmpregadores[funcionario.empregadorId] || 'Não encontrado'}</TableCell>
+              <TableCell>
+                <Chip
+                  label={funcionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
+                  color={funcionario.pessoa.ativo ? 'success' : 'error'}
+                  size="small"
+                  variant="outlined"
                 />
-              ) : (
-                <CheckBoxOutlineBlank
-                  onClick={() => handleSelecionados(funcionario.id)}
+              </TableCell>
+              <TableCell>
+                <Edit
                   sx={{
                     color: 'var(--blue-200)',
                     cursor: 'pointer',
                     borderRadius: 5,
                     ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
                   }}
+                  onClick={() => handleLancarSalario(funcionario)}
                 />
-              )}
-            </TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{formatarCPF(funcionario.pessoa.cpfcnpj)}</TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{funcionario.pessoa.nome}</TableCell>
-            <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosContador?.pessoa?.nome}</TableCell>
-            <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{mapaEmpregadores[funcionario.empregadorId] || 'Não encontrado'}</TableCell>
-            <TableCell>
-              <Chip
-                label={funcionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
-                color={funcionario.pessoa.ativo ? 'success' : 'error'}
-                size="small"
-                variant="outlined"
-              />
-            </TableCell>
-            <TableCell>
-              <Edit
-                sx={{
-                  color: 'var(--blue-200)',
-                  cursor: 'pointer',
-                  borderRadius: 5,
-                  ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
-                }}
-                onClick={() => handleLancarSalario(funcionario)}
-              />
-            </TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        ))}
-        <ModalContracheque
-          open={mostrarModal}
-          onClose={handleFecharModal}
-          funcionario={funcionarioSelecionado}
-          empregador={empregadores.find(emp => emp.id === funcionarioSelecionado?.empregadorId)}
-        />
-        <ModalConfirmacao
-          open={confirmacaoAberta}
-          onClose={handleFecharConfirmacao}
-          onConfirm={enviarFolhasSelecionadas}
-          title="Confirmar Envio"
-          message={`Deseja enviar os contracheques dos ${selecionados.length} funcionários selecionados?`}
-          subMessage="Esta ação fará o envio da folha de pagamento de todos os funcionários selecionados!"
-        />
-        <ModalInfo
-          open={sucessoAberto}
-          onClose={() => setSucessoAberto(false)}
-        />
-      </TableBody>
-    </TableContainer>
+              </TableCell>
+              <TableCell>
+                {statusEnvio[funcionario.id] === 'success' ? (
+                  <CheckCircleOutline sx={{ color: 'var(--ativo)' }} />
+                ) : statusEnvio[funcionario.id] === 'error' ? (
+                  <ErrorOutline sx={{ color: 'var(--danger)' }} />
+                ) : (
+                  <PendingOutlined sx={{ color: '#ff9966' }}/>
+                )}
+              </TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          ))}
+          <ModalContracheque
+            open={mostrarModal}
+            onClose={handleFecharModal}
+            funcionario={funcionarioSelecionado}
+            empregador={empregadores.find(emp => emp.id === funcionarioSelecionado?.empregadorId)}
+          />
+          <ModalConfirmacao
+            open={confirmacaoAberta}
+            onClose={handleFecharConfirmacao}
+            onConfirm={enviarFolhasSelecionadas}
+            title="Confirmar Envio"
+            message={`Deseja enviar os contracheques dos ${selecionados.length} funcionários selecionados?`}
+            subMessage="Esta ação fará o envio da folha de pagamento de todos os funcionários selecionados!"
+          />
+          <ModalInfo
+            open={sucessoAberto}
+            onClose={handleFecharModalInfo}
+            tipo={tipoModal}
+            mensagem={mensagem}
+          />
+        </TableBody>
+      </TableContainer>
+    </>
   );
 };
 

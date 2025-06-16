@@ -1,33 +1,79 @@
-import { Cancel, SaveAlt, Title } from "@mui/icons-material";
+import { Cancel, Palette, SaveAlt } from "@mui/icons-material";
 import { Box, Button, Modal, TextField } from "@mui/material"
 import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
 import { useState } from "react";
+import ContrachequeService from "../../Services/ContrachequeService";
 
-export const ModalContracheque = ({ open, onClose, funcionario }) => {
-    const [confirmacaoAberta, setConfrimacaoAberta] = useState(false)
+export const ModalContracheque = ({ open, onClose, funcionario, empregador }) => {
+    const [confirmacaoAberta, setConfrimacaoAberta] = useState(false);
+    const [enviando, setEnviando] = useState(false)
+
+    const [dataPagamento, setDataPagamento] = useState('');
+    const [dataRefInicio, setDataRefInicio] = useState('');
+    const [dataRefFim, setDataRefFim] = useState('');
+    const [salarioBase, setSalarioBase] = useState('');
+    const [horaExtra, setHoraExtra] = useState('');
+    const [adicionalNoturno, setAdicionalNoturno] = useState('');
+    const [comissoes, setComissoes] = useState('');
+    const [beneficios, setBeneficios] = useState('');
+    const [inss, setInss] = useState('');
+    const [irrf, setIrrf] = useState('');
+    const [fgts, setFgts] = useState('');
+    const [outrosDescontos, setOutrosDescontos] = useState('');
 
     const handleAbrirConfirmacao = () => {
-        console.log("passou aqui")
-        
+        setConfrimacaoAberta(true);
+    };
+
+    const handleFecharConfirmacao = () => {
+        setConfrimacaoAberta(false);
+    };
+    
+    const criarPayload = () => ({
+        funcId: funcionario?.id || '',
+        empregadorId: empregador?.id || '',
+        dataPagamento,
+        dataRefInicio,
+        dataRefFim,
+        salarioBase,
+        horaExtra,
+        adicionalNoturno,
+        comissoes,
+        beneficios,
+        inss,
+        irrf,
+        fgts,
+        outrosDescontos
+    });
+
+
+    const handleSalvar = () => {
+        const payload = criarPayload()
+        const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
+    
+        const indexExistente = contrachequesSalvos.findIndex(item => 
+            item.funcId === payload.funcId &&
+            item.dataRefInicio === payload.dataRefInicio &&
+            item.dataRefFim === payload.dataRefFim
+        )
+
+        if(indexExistente !== - 1) {
+            contrachequesSalvos[indexExistente] = payload
+        }else{
+            contrachequesSalvos.push(payload)
+        }
+
+        localStorage.setItem('contracheques', JSON.stringify(contrachequesSalvos))
+        console.log('Payload salvo no localstorage: ', payload)
         setConfrimacaoAberta(true)
     }
 
-    const handleFecharConfirmacao = () => {
+    const handleConfirmarSalvar = () => {
+        handleSalvar()
         setConfrimacaoAberta(false)
+        onClose()
     }
 
-    /* const credenciais = {
-        'funcionario_id': id,
-        'contador_id':  naosei,
-        'data_pagamento': dataPagamento,
-        'data_ref_inicio': dataRefInicio,
-        'data_ref_fim': dataRefFim,
-        'salario_base': salarioBase,
-        'hora_extra': horaExtra,
-        'adicional_noturno': adicionalNoturno,
-        'comissoes': comissoes,
-        'beneficios': beneficios,
-    } */
 
     return (
         <Modal
@@ -50,21 +96,15 @@ export const ModalContracheque = ({ open, onClose, funcionario }) => {
                     background: 'var(--background-color)',
                 }}
             >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2,
-                    }}
-                >
-                    <TextField 
-                        name="id"
-                        value={funcionario?.id || ''}
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <TextField
+                        name="nome"
+                        value={funcionario?.pessoa.nome || ''}
                         InputProps={{ readOnly: true }}
-                        label="Funcionairo ID"
+                        label="Nome"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
-                    >   
-                    </TextField>
+                    />
                     <Button
                         onClick={handleAbrirConfirmacao}
                         sx={{ background: 'var(--blue-200)' }}
@@ -75,9 +115,7 @@ export const ModalContracheque = ({ open, onClose, funcionario }) => {
                         Salvar
                     </Button>
                     <Button
-                        sx={{
-                            border: '1px solid var(--danger)'
-                        }}
+                        sx={{ border: '1px solid var(--danger)' }}
                         variant="outlined"
                         color="error"
                         startIcon={<Cancel />}
@@ -86,97 +124,129 @@ export const ModalContracheque = ({ open, onClose, funcionario }) => {
                         Cancelar
                     </Button>
                 </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2
-                    }}
-                >
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         name="dataPagamento"
-                        // defaultValue={funcionario?.nome}
                         type="date"
                         label="Data pagamento"
                         size="small"
+                        value={dataPagamento}
+                        onChange={(e) => setDataPagamento(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
+                    <TextField
+                        name="dataRefInicio"
+                        type="date"
+                        label="Data referente ao início"
+                        size="small"
+                        value={dataRefInicio}
+                        onChange={(e) => setDataRefInicio(e.target.value)}
+                        sx={{ ...inputStyle, flex: 1 }}
+                    />
+                    <TextField
+                        name="dataRefFim"
+                        type="date"
+                        label="Data referente ao fim"
+                        size="small"
+                        value={dataRefFim}
+                        onChange={(e) => setDataRefFim(e.target.value)}
+                        sx={{ ...inputStyle, flex: 1 }}
+                    />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         name="salarioBase"
                         label="Salário base"
                         size="small"
+                        value={salarioBase}
+                        onChange={(e) => setSalarioBase(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
                         name="horaExtra"
                         label="Hora extra"
                         size="small"
+                        value={horaExtra}
+                        onChange={(e) => setHoraExtra(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
                         name="adicionalNoturno"
                         label="Adicional noturno"
                         size="small"
+                        value={adicionalNoturno}
+                        onChange={(e) => setAdicionalNoturno(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2
-                    }}
-                >
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         name="comissoes"
-                        label="Comissoes"
+                        label="Comissões"
                         size="small"
+                        value={comissoes}
+                        onChange={(e) => setComissoes(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
                         name="beneficios"
-                        label="Beneficios"
+                        label="Benefícios"
                         size="small"
+                        value={beneficios}
+                        onChange={(e) => setBeneficios(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
                         name="inss"
                         label="INSS"
                         size="small"
+                        value={inss}
+                        onChange={(e) => setInss(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
-                        name="irff"
-                        label="IRFF"
+                        name="irrf"
+                        label="IRRF"
                         size="small"
+                        value={irrf}
+                        onChange={(e) => setIrrf(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
-                    />  
+                    />
                 </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2
-                    }}
-                >
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <TextField
+                        name="fgts"
+                        label="FGTS"
+                        size="small"
+                        value={fgts}
+                        onChange={(e) => setFgts(e.target.value)}
+                        sx={{ ...inputStyle, flex: 1 }}
+                    />
                     <TextField
                         name="outrosDescontos"
                         label="Outros descontos"
                         size="small"
-                        sx={{ ...inputStyle, flex: 1 }}
-                    />
-                    <TextField
-                        name="outrosDescontos"
-                        label="Outros descontos"
-                        size="small"
+                        value={outrosDescontos}
+                        onChange={(e) => setOutrosDescontos(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>
-                <ModalConfirmacao 
+
+                <ModalConfirmacao
                     open={confirmacaoAberta}
                     onClose={handleFecharConfirmacao}
-                />                                                             
+                    onConfirm={handleConfirmarSalvar}
+                    message="Tem certeza que deseja salvar esse pagamento?"
+                    subMessage="Esta ação ainda não enviará a folha de pagamento!"
+                />
             </Box>
         </Modal>
-    )
-}
+    );
+};
 
 const inputStyle = {
     '& .MuiOutlinedInput-root.Mui-focused fieldset': {

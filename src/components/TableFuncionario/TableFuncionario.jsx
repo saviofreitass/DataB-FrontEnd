@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,8 +15,7 @@ import { UpdateFuncionario } from '../UpdateFuncionario/UpdateFuncionario';
 import FuncionarioService from '../../Services/FuncionarioService';
 import ContadorService from '../../Services/ContadorService'
 import { DrawerConfigFilter } from '../Drawer/DrawerConfigFilter';
-import { Cancel, CheckBox, Done } from "@mui/icons-material"
-import { Box, Drawer, FormControlLabel, FormGroup, IconButton } from "@mui/material"
+
 import EmpregadorService from '../../Services/EmpregadorService';
 import { decodeJWT } from '../Utils/DecodeToken';
 
