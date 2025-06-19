@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -19,7 +20,7 @@ import { DrawerConfigFilter } from '../Drawer/DrawerConfigFilter';
 import EmpregadorService from '../../Services/EmpregadorService';
 import { decodeJWT } from '../Utils/DecodeToken';
 
-export const TableFuncionario = ({ openDrawer, idEmpregador }) => {
+export const TableFuncionario = ({ openDrawer  }) => {
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [dadosFuncionario, setDadosFuncionario] = useState([])
   const [editarFuncionario, setEditarFuncionario] = useState(false)
@@ -29,6 +30,8 @@ export const TableFuncionario = ({ openDrawer, idEmpregador }) => {
   const [contadorId, setContadorId] = useState('')
   const [dadosContador, setDadosContador] = useState([{}])
   const [empregadores, setEmpregadores] = useState([])
+
+  const { empregadorSelecionado } = useOutletContext();
 
   const handleOpenDrawer = () => {
     setAbrirDrawer(true)
@@ -111,7 +114,7 @@ export const TableFuncionario = ({ openDrawer, idEmpregador }) => {
   }, [contadorId])
 
   if (mostrarRegistro) {
-    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={idEmpregador} />;
+    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={empregadorSelecionado} />;
   }
 
   return (

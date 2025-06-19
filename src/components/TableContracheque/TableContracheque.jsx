@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import ContrachequeService from "../../Services/ContrachequeService";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 
+import Warning from '../../assets/Warning.svg'
+
 export const TableContracheque = () => {
     const [dadosContracheque, setDadosContracheque] = useState([]);
     const [expandido, setExpandido] = useState({});
@@ -42,7 +44,17 @@ export const TableContracheque = () => {
     return (
         <Grid container spacing={2}>
             {dadosContracheque.length === 0 ? (
-                <Typography>Nenhum contracheque encontrado.</Typography>
+                <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '50vh' }}>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <img src={Warning} alt="alerta" style={{ width: '250px', marginBottom: '16px' }} />
+                        <Typography sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', mb: 1 }}>
+                            Não conseguimos localizar nenhum contracheque para você!
+                        </Typography>
+                        <Typography sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>
+                            Em caso de dúvidas, consulte seu gerente responsável pelo seu setor.
+                        </Typography>
+                    </Box>
+                </Grid>
             ) : (
                 dadosContracheque.map((item) => (
                     <Grid item xs={12} sm={6} md={4} key={item.id}>

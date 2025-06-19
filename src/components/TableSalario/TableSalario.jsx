@@ -1,19 +1,19 @@
-import { CheckBox, CheckBoxOutlineBlank, Edit, PendingOutlined, SaveAlt, Search } from "@mui/icons-material";
-import { Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, TextField, InputAdornment, Button } from "@mui/material";
-import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
+import { CheckBox, CheckBoxOutlineBlank, Edit, PendingOutlined, SaveAlt, Search } from "@mui/icons-material"
+import { Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, TextField, InputAdornment, Button } from "@mui/material"
+import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material'
 
-import FuncionarioService from "../../Services/FuncionarioService";
-import ContrachequeService from '../../Services/ContrachequeService';
-import EmpregadorService from '../../Services/EmpregadorService';
+import FuncionarioService from "../../Services/FuncionarioService"
+import ContrachequeService from '../../Services/ContrachequeService'
+import EmpregadorService from '../../Services/EmpregadorService'
 import ContadorService from '../../Services/ContadorService'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 
-import { ModalContracheque } from "../ModalContracheque/ModalContracheque";
-import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
+import { ModalContracheque } from "../ModalContracheque/ModalContracheque"
+import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao"
 
 import { decodeJWT } from '../Utils/DecodeToken'
-import { ModalInfo } from "../ModalInfo/ModalInfo";
+import { ModalInfo } from "../ModalInfo/ModalInfo"
 
 
 export const TableSalario = () => {
@@ -51,11 +51,11 @@ export const TableSalario = () => {
   const handleFecharModal = () => setMostarModal(false)
 
   const formatarCPF = (cpf) => {
-    if (!cpf) return '';
+    if (!cpf) return ''
     return cpf.replace(/\D/g, '')
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
   }
 
   useEffect(() => {
@@ -147,8 +147,9 @@ export const TableSalario = () => {
       return
     }
 
-    const erros = [];
+    const erros = []
     const enviadosComSucesso = []
+    const mensagensErro = []
 
     for (const contracheque of contrachequesParaEnviar) {
       try {
@@ -157,15 +158,16 @@ export const TableSalario = () => {
         if (resposta?.data?.success === false) {
           throw new Error(resposta.data.message || 'Erro no backend')
         }
+
         enviadosComSucesso.push(contracheque.funcId);
         setEnvioStatus(prev => ({ ...prev, [contracheque.funcId]: 'success' }))
       } catch (error) {
         const mensagemErro = error?.response?.data?.message || error?.message || 'Erro desconhecido'
-
         erros.push({
           funcId: contracheque.funcId,
           mensagem: mensagemErro
-        })
+        });
+        mensagensErro.push(`Funcionário: ${contracheque.funcId} -> ${mensagemErro}`)
         setEnvioStatus(prev => ({ ...prev, [contracheque.funcId]: 'error' }))
       }
     }
@@ -178,20 +180,20 @@ export const TableSalario = () => {
     }
 
     if (erros.length === 0) {
-      setMensagem('Folha de pagamento enviada com sucesso!');
-      setTipoModal('sucesso');
-      setSelecionados([]);
+      setMensagem('Folha de pagamento enviada com sucesso!')
+      setTipoModal('sucesso')
+      setSelecionados([])
     } else if (enviadosComSucesso.length === 0) {
-      setMensagem('Falha ao enviar todos os contracheques. Verifique e tente novamente.')
+      setMensagem(mensagensErro.join('\n'))
       setTipoModal('erro')
     } else {
-      setMensagem('Alguns contracheques foram enviados, mas ocorreram erros em outros. Verifique os logs.')
+      setMensagem(`Alguns contracheques foram enviados, mas ocorreram erros em outros:\n\n${mensagensErro.join('\n')}`)
       setTipoModal('aviso')
     }
 
     setSucessoAberto(true)
     setEnviando(false)
-  };
+  }
 
 
   const handleFecharModalInfo = () => {
@@ -306,7 +308,7 @@ export const TableSalario = () => {
                 ) : statusEnvio[funcionario.id] === 'error' ? (
                   <ErrorOutline sx={{ color: 'var(--danger)' }} />
                 ) : (
-                  <PendingOutlined sx={{ color: '#ff9966' }}/>
+                  <PendingOutlined sx={{ color: '#ff9966' }} />
                 )}
               </TableCell>
               <TableCell></TableCell>

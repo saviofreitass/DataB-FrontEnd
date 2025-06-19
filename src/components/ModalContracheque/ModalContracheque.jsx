@@ -1,7 +1,7 @@
 import { Cancel, Palette, SaveAlt } from "@mui/icons-material";
-import { Box, Button, Modal, TextField } from "@mui/material"
+import { Alert, Box, Button, Modal, TextField } from "@mui/material"
 import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ContrachequeService from "../../Services/ContrachequeService";
 
 export const ModalContracheque = ({ open, onClose, funcionario, empregador }) => {
@@ -28,38 +28,39 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
     const handleFecharConfirmacao = () => {
         setConfrimacaoAberta(false);
     };
-    
+
     const criarPayload = () => ({
         funcId: funcionario?.id || '',
         empregadorId: empregador?.id || '',
         dataPagamento,
         dataRefInicio,
         dataRefFim,
-        salarioBase,
-        horaExtra,
-        adicionalNoturno,
-        comissoes,
-        beneficios,
-        inss,
-        irrf,
-        fgts,
-        outrosDescontos
-    });
+        salarioBase: removerFormatacao(salarioBase || funcionario?.salario || ''),
+        horaExtra: removerFormatacao(horaExtra),
+        adicionalNoturno: removerFormatacao(adicionalNoturno),
+        comissoes: removerFormatacao(comissoes),
+        beneficios: removerFormatacao(beneficios),
+        inss: removerFormatacao(inss),
+        irrf: removerFormatacao(irrf),
+        fgts: removerFormatacao(fgts),
+        outrosDescontos: removerFormatacao(outrosDescontos)
+    })
+
 
 
     const handleSalvar = () => {
         const payload = criarPayload()
         const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
-    
-        const indexExistente = contrachequesSalvos.findIndex(item => 
+
+        const indexExistente = contrachequesSalvos.findIndex(item =>
             item.funcId === payload.funcId &&
             item.dataRefInicio === payload.dataRefInicio &&
             item.dataRefFim === payload.dataRefFim
         )
 
-        if(indexExistente !== - 1) {
+        if (indexExistente !== - 1) {
             contrachequesSalvos[indexExistente] = payload
-        }else{
+        } else {
             contrachequesSalvos.push(payload)
         }
 
@@ -73,6 +74,24 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
         setConfrimacaoAberta(false)
         onClose()
     }
+
+    useEffect(() => {
+        if (funcionario?.salario) {
+            setSalarioBase(formatarMoeda(funcionario.salario));
+        }
+    }, [funcionario]);
+
+    const handleDataRefInicioChange = (e) => {
+        const data = e.target.value
+        setDataRefInicio(data)
+
+        if (data) {
+            const [ano, mes] = data.split('-')
+            const ultimoDia = new Date(ano, mes, 0).getDate()
+            const dataFim = `${ano}-${mes.padStart(2, '0')}-${ultimoDia.toString().padStart(2, '0')}`
+            setDataRefFim(dataFim)
+        }
+    };
 
 
     return (
@@ -96,6 +115,11 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                     background: 'var(--background-color)',
                 }}
             >
+                <Alert
+                    severity="info"
+                >
+                    Todos os campos exceto as datas, deverão ser preenchidos com valor em REAIS!
+                </Alert>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         name="nome"
@@ -134,6 +158,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={dataPagamento}
                         onChange={(e) => setDataPagamento(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                     <TextField
                         name="dataRefInicio"
@@ -141,8 +166,9 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="Data referente ao início"
                         size="small"
                         value={dataRefInicio}
-                        onChange={(e) => setDataRefInicio(e.target.value)}
+                        onChange={handleDataRefInicioChange}
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                     <TextField
                         name="dataRefFim"
@@ -152,6 +178,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={dataRefFim}
                         onChange={(e) => setDataRefFim(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                 </Box>
 
@@ -161,15 +188,16 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="Salário base"
                         size="small"
                         value={salarioBase}
-                        onChange={(e) => setSalarioBase(e.target.value)}
+                        onChange={(e) => setSalarioBase(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                     <TextField
                         name="horaExtra"
                         label="Hora extra"
                         size="small"
                         value={horaExtra}
-                        onChange={(e) => setHoraExtra(e.target.value)}
+                        onChange={(e) => setHoraExtra(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
@@ -177,7 +205,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="Adicional noturno"
                         size="small"
                         value={adicionalNoturno}
-                        onChange={(e) => setAdicionalNoturno(e.target.value)}
+                        onChange={(e) => setAdicionalNoturno(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>
@@ -188,7 +216,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="Comissões"
                         size="small"
                         value={comissoes}
-                        onChange={(e) => setComissoes(e.target.value)}
+                        onChange={(e) => setComissoes(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
@@ -196,7 +224,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="Benefícios"
                         size="small"
                         value={beneficios}
-                        onChange={(e) => setBeneficios(e.target.value)}
+                        onChange={(e) => setBeneficios(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
@@ -204,15 +232,16 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="INSS"
                         size="small"
                         value={inss}
-                        onChange={(e) => setInss(e.target.value)}
+                        onChange={(e) => setInss(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                     <TextField
                         name="irrf"
                         label="IRRF"
                         size="small"
                         value={irrf}
-                        onChange={(e) => setIrrf(e.target.value)}
+                        onChange={(e) => setIrrf(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>
@@ -223,15 +252,16 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="FGTS"
                         size="small"
                         value={fgts}
-                        onChange={(e) => setFgts(e.target.value)}
+                        onChange={(e) => setFgts(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                     <TextField
                         name="outrosDescontos"
                         label="Outros descontos"
                         size="small"
                         value={outrosDescontos}
-                        onChange={(e) => setOutrosDescontos(e.target.value)}
+                        onChange={(e) => setOutrosDescontos(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>
@@ -254,3 +284,37 @@ const inputStyle = {
         borderWidth: '2px',
     },
 };
+
+const formatarMoeda = (valor) => {
+    if (valor === undefined || valor === null) return ''
+
+    if (typeof valor === 'number') {
+        return valor.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        })
+    }
+
+    const numero = String(valor).replace(/\D/g, '')
+    const numeroFormatado = (Number(numero) / 100).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    })
+    return numeroFormatado
+}
+
+
+const removerFormatacao = (valor) => {
+    if (valor === undefined || valor === null || valor === '') {
+        return 0
+    }
+
+    const somenteNumeros = String(valor).replace(/\D/g, '')
+    const resultado = (Number(somenteNumeros) / 100).toFixed(2)
+
+    return resultado.toString()
+};
+
+
+
+
