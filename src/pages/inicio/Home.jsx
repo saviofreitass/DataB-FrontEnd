@@ -16,13 +16,16 @@ import style from "./Home.module.css"
 import { decodeJWT } from "../../components/Utils/DecodeToken"
 import { DrawerConfigAccount } from "../../components/Drawer/DrawerConfigAccount"
 import EmpregadorService from "../../Services/EmpregadorService"
+import { MenuAccount } from "../../components/MenuAccount/MenuAccount"
 
 export const Home = () => {
     const [userRole, setUserRole] = useState('')
     const [nomeUsuario, setNomeUsuario] = useState('')
-    const [abrirDrawer, setAbrirDrawer] = useState(false)
     const [empregadores, setEmpregadores] = useState([])
     const [empregadorSelecionado, setEmpregadorSelecionado] = useState('')
+    const [anchorEl, setAnchorEl] = useState(null)
+    const [encolhido, setEncolhido] = useState(false)
+
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -53,8 +56,14 @@ export const Home = () => {
         }
     }, []);
 
-    const handleAbrirDrawer = () => setAbrirDrawer(true)
-    const handleFecharDrawer = () => setAbrirDrawer(false)
+    const handleAbrirMenu = (event) => {
+        setAnchorEl(event.currentTarget)
+    }
+
+    const handleFecharMenu = () => {
+        setAnchorEl(null)
+    }
+
 
     const navegar = (path) => navigate(`/home/${path}`)
 
@@ -73,7 +82,7 @@ export const Home = () => {
                         </CardContent>
                     </CardActionArea>
                 </Card>
-            );
+            )
         } else if (userRole === 'ROLE_CONTADOR') {
             return (
                 <>
@@ -137,14 +146,14 @@ export const Home = () => {
                         </CardActionArea>
                     </Card>
                 </>
-            );
+            )
         }
-        return null;
-    };
+        return null
+    }
 
     return (
         <div className={style.container}>
-            <aside>
+            <aside className={`${style.sidebar} ${encolhido ? style.sidebarEncolhido : ''}`}>
                 <Sidebar
                     voltarHome={() => navigate('/home')}
                     exibirFuncionarios={() => navegar('funcionarios')}
@@ -153,10 +162,12 @@ export const Home = () => {
                     exibirTabelaEmpregador={() => navegar('empregadores')}
                     exibirTabelaContracheque={() => navegar('contracheques')}
                     isFuncionario={userRole === 'ROLE_FUNCIONARIO'}
+                    encolhido={encolhido}
+                    setEncolhido={setEncolhido}
                 />
             </aside>
 
-            {abrirDrawer && <DrawerConfigAccount open={abrirDrawer} onClose={handleFecharDrawer} />}
+            {anchorEl && <MenuAccount anchorEl={anchorEl} onClose={handleFecharMenu} />}
 
             <main className={style.main}>
                 <div className={style.content}>
@@ -183,7 +194,7 @@ export const Home = () => {
                         </div>
                         <AccountCircle
                             sx={{ color: 'var(--text-secund)', cursor: 'pointer' }}
-                            onClick={handleAbrirDrawer}
+                            onClick={handleAbrirMenu}
                         />
                         <span className={style.profileName}>{nomeUsuario}</span>
                     </div>
@@ -201,5 +212,5 @@ export const Home = () => {
                 </div>
             </main>
         </div>
-    );
-};
+    )
+}

@@ -1,18 +1,27 @@
-import { useState } from 'react';
-import Icon from '../../assets/Logo.png';
-import style from './Sidebar.module.css';
+import { useState } from 'react'
+import Icon from '../../assets/Logo.png'
+import style from './Sidebar.module.css'
 import {
     Home, HomeRepairService, ManageAccounts, Engineering,
     RequestPage, MonetizationOn, Menu, ChevronLeft
-} from '@mui/icons-material';
+} from '@mui/icons-material'
 
-export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores, isFuncionario, exibirTabelaSalario, exibirTabelaEmpregador, exibirTabelaContracheque }) => {
+export const Sidebar = ({
+    voltarHome,
+    exibirFuncionarios,
+    exibirContadores,
+    isFuncionario,
+    exibirTabelaSalario,
+    exibirTabelaEmpregador,
+    exibirTabelaContracheque,
+    encolhido,
+    setEncolhido
+}) => {
     const [valor, setValor] = useState("");
-    const [encolhido, setEncolhido] = useState(false);
 
     return (
-        <div className={`${style.container} ${encolhido ? style.containerEncolhido : ''}`}>
-            <div className={style.topo}>
+        <div className={style.container}>
+            <div className={`${style.topo} ${encolhido ? style.topoEncolhido : ''}`}>
                 {!encolhido && <img src={Icon} alt="ícone logo marca" className={style.logo} />}
                 <button className={style.botaoToggle} onClick={() => setEncolhido(!encolhido)}>
                     {encolhido ? <Menu /> : <ChevronLeft />}
@@ -71,5 +80,5 @@ export const Sidebar = ({ voltarHome, exibirFuncionarios, exibirContadores, isFu
                 </div>
             )}
         </div>
-    );
-};
+    )
+}

@@ -8,6 +8,10 @@ class EmpregadorService{
     GetByIdContador(){
         return api.get(`/empregador`)
     }
+
+    update(id, dadosEmpregador){
+        return api.put(`/empregador/${id}`, dadosEmpregador)
+    }
 }
 
 export default new EmpregadorService()

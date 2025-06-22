@@ -118,7 +118,7 @@ export const TableFuncionario = ({ openDrawer  }) => {
   }
 
   return (
-    <TableContainer component={Paper} sx={{ width: 870, border: 1, borderColor: 'var(--blue-200)' }}>
+    <TableContainer component={Paper} sx={{ maxWidth: '98%', border: 1, borderColor: 'var(--blue-200)' }}>
       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
         <TableHead>
           <TableRow>
@@ -159,14 +159,14 @@ export const TableFuncionario = ({ openDrawer  }) => {
               key={dadosFuncionario.pessoa.cpfcnpj}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>
                 {formatarCPF(dadosFuncionario.pessoa.cpfcnpj)}
               </TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.pessoa.nome}</TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.setor}</TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosFuncionario.cargo}</TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{mapaEmpregadores[dadosFuncionario.empregadorId] || 'Não encontrado'}</TableCell>
-              <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{dadosContador?.pessoa?.nome}</TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>{dadosFuncionario.pessoa.nome}</TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>{dadosFuncionario.setor}</TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>{dadosFuncionario.cargo}</TableCell>
+              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>{mapaEmpregadores[dadosFuncionario.empregadorId] || 'Não encontrado'}</TableCell>
+              <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>{dadosContador?.pessoa?.nome}</TableCell>
               <TableCell >
                 <Chip
                   label={dadosFuncionario.pessoa.ativo ? 'Ativo' : 'Inativo'}

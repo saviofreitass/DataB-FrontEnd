@@ -5,29 +5,52 @@ import { useEffect, useState } from "react";
 import ContrachequeService from "../../Services/ContrachequeService";
 
 export const ModalContracheque = ({ open, onClose, funcionario, empregador }) => {
-    const [confirmacaoAberta, setConfrimacaoAberta] = useState(false);
+    const [confirmacaoAberta, setConfrimacaoAberta] = useState(false)
     const [enviando, setEnviando] = useState(false)
+    const [dataPagamento, setDataPagamento] = useState('')
+    const [dataRefInicio, setDataRefInicio] = useState('')
+    const [dataRefFim, setDataRefFim] = useState('')
+    const [salarioBase, setSalarioBase] = useState('')
+    const [horaExtra, setHoraExtra] = useState('')
+    const [adicionalNoturno, setAdicionalNoturno] = useState('')
+    const [comissoes, setComissoes] = useState('')
+    const [beneficios, setBeneficios] = useState('')
+    const [inss, setInss] = useState('')
+    const [irrf, setIrrf] = useState('')
+    const [fgts, setFgts] = useState('')
+    const [outrosDescontos, setOutrosDescontos] = useState('')
+    const [erros, setErros] = useState({})
+    const [totalLiquido, setTotalLiquido] = useState('')
 
-    const [dataPagamento, setDataPagamento] = useState('');
-    const [dataRefInicio, setDataRefInicio] = useState('');
-    const [dataRefFim, setDataRefFim] = useState('');
-    const [salarioBase, setSalarioBase] = useState('');
-    const [horaExtra, setHoraExtra] = useState('');
-    const [adicionalNoturno, setAdicionalNoturno] = useState('');
-    const [comissoes, setComissoes] = useState('');
-    const [beneficios, setBeneficios] = useState('');
-    const [inss, setInss] = useState('');
-    const [irrf, setIrrf] = useState('');
-    const [fgts, setFgts] = useState('');
-    const [outrosDescontos, setOutrosDescontos] = useState('');
+    const mensagemAlertPadrao = {
+        tipo: 'info',
+        mensagem: 'Todos os campos abaixo, exceto as datas, deverão ser preenchidos com valor em REAIS!'
+    }
+
+    const [mensagemAlert, setMensagemAlert] = useState(mensagemAlertPadrao)
+
+    const validarCampos = () => {
+        const novosErros = {}
+
+        if (!dataPagamento) novosErros.dataPagamento = 'Campo obrigatório'
+        if (!dataRefInicio) novosErros.dataRefInicio = 'Campo obrigatório'
+        if (!dataRefFim) novosErros.dataRefFim = 'Campo obrigatório'
+        if (!salarioBase) novosErros.salarioBase = 'Campo obrigatório'
+        if (!inss) novosErros.inss = 'Campo obrigatório'
+        if (!fgts) novosErros.fgts = 'Campo obrigatório'
+
+        setErros(novosErros);
+
+        return Object.keys(novosErros).length === 0;
+    }
 
     const handleAbrirConfirmacao = () => {
-        setConfrimacaoAberta(true);
-    };
+        setConfrimacaoAberta(true)
+    }
 
     const handleFecharConfirmacao = () => {
-        setConfrimacaoAberta(false);
-    };
+        setConfrimacaoAberta(false)
+    }
 
     const criarPayload = () => ({
         funcId: funcionario?.id || '',
@@ -49,6 +72,15 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
 
 
     const handleSalvar = () => {
+        const camposValidos = validarCampos()
+
+        if (!camposValidos) {
+            setMensagemAlert({ tipo: 'error', mensagem: 'Por favor, preencha todos os campos obrigatórios.' })
+            return
+        }
+
+        setMensagemAlert(mensagemAlertPadrao)
+
         const payload = criarPayload()
         const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
 
@@ -70,6 +102,14 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
     }
 
     const handleConfirmarSalvar = () => {
+        const camposValidos = validarCampos()
+        if (!camposValidos) {
+            setMensagemAlert({ tipo: 'error', mensagem: 'Por favor, preencha todos os campos obrigatórios.' })
+            return
+        }
+
+        setMensagemAlert(mensagemAlertPadrao)
+
         handleSalvar()
         setConfrimacaoAberta(false)
         onClose()
@@ -79,7 +119,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
         if (funcionario?.salario) {
             setSalarioBase(formatarMoeda(funcionario.salario));
         }
-    }, [funcionario]);
+    }, [funcionario])
 
     const handleDataRefInicioChange = (e) => {
         const data = e.target.value
@@ -91,7 +131,50 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
             const dataFim = `${ano}-${mes.padStart(2, '0')}-${ultimoDia.toString().padStart(2, '0')}`
             setDataRefFim(dataFim)
         }
-    };
+    }
+
+    const paraNumero = (valor) => {
+        if (!valor) {
+            return 0
+        }
+
+        const numero = String(valor).replace(/\D/g, '')
+        return Number(numero) / 100
+    }
+
+    const calcularTotalLiquido = () => {
+        const proventos =
+            paraNumero(salarioBase) +
+            paraNumero(horaExtra) +
+            paraNumero(adicionalNoturno) +
+            paraNumero(comissoes) +
+            paraNumero(beneficios);
+
+        const descontos =
+            paraNumero(inss) +
+            paraNumero(irrf) +
+            paraNumero(fgts) +
+            paraNumero(outrosDescontos)
+
+        const total = proventos - descontos
+
+        return total
+    }
+
+    useEffect(() => {
+        const total = calcularTotalLiquido()
+        setTotalLiquido(formatarMoeda(total))
+    }, [
+        salarioBase,
+        horaExtra,
+        adicionalNoturno,
+        comissoes,
+        beneficios,
+        inss,
+        irrf,
+        fgts,
+        outrosDescontos
+    ])
 
 
     return (
@@ -116,9 +199,9 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                 }}
             >
                 <Alert
-                    severity="info"
+                    severity={mensagemAlert.tipo}
                 >
-                    Todos os campos exceto as datas, deverão ser preenchidos com valor em REAIS!
+                    {mensagemAlert.mensagem}
                 </Alert>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
@@ -159,6 +242,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         onChange={(e) => setDataPagamento(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                         required
+                        error={!!erros.dataPagamento}
+                        helperText={erros.dataPagamento}
                     />
                     <TextField
                         name="dataRefInicio"
@@ -169,6 +254,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         onChange={handleDataRefInicioChange}
                         sx={{ ...inputStyle, flex: 1 }}
                         required
+                        error={!!erros.dataRefInicio}
+                        helperText={erros.dataRefInicio}
                     />
                     <TextField
                         name="dataRefFim"
@@ -179,6 +266,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         onChange={(e) => setDataRefFim(e.target.value)}
                         sx={{ ...inputStyle, flex: 1 }}
                         required
+                        error={!!erros.dataRefFim}
+                        helperText={erros.dataRefFim}
                     />
                 </Box>
 
@@ -191,6 +280,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         onChange={(e) => setSalarioBase(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                         required
+                        error={!!erros.salarioBase}
+                        helperText={erros.salarioBase}
                     />
                     <TextField
                         name="horaExtra"
@@ -199,6 +290,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={horaExtra}
                         onChange={(e) => setHoraExtra(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        error={!!erros.horaExtra}
+                        helperText={erros.horaExtra}
                     />
                     <TextField
                         name="adicionalNoturno"
@@ -207,6 +300,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={adicionalNoturno}
                         onChange={(e) => setAdicionalNoturno(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        error={!!erros.adicionalNoturno}
+                        helperText={erros.adicionalNoturno}
                     />
                 </Box>
 
@@ -218,6 +313,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={comissoes}
                         onChange={(e) => setComissoes(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        error={!!erros.comissoes}
+                        helperText={erros.comissoes}
                     />
                     <TextField
                         name="beneficios"
@@ -226,6 +323,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={beneficios}
                         onChange={(e) => setBeneficios(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        error={!!erros.beneficios}
+                        helperText={erros.beneficios}
                     />
                     <TextField
                         name="inss"
@@ -235,6 +334,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         onChange={(e) => setInss(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                         required
+                        error={!!erros.inss}
+                        helperText={erros.inss}
                     />
                     <TextField
                         name="irrf"
@@ -243,6 +344,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         value={irrf}
                         onChange={(e) => setIrrf(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
+                        error={!!erros.irrf}
+                        helperText={erros.irrf}
                     />
                 </Box>
 
@@ -255,6 +358,8 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         onChange={(e) => setFgts(formatarMoeda(e.target.value))}
                         sx={{ ...inputStyle, flex: 1 }}
                         required
+                        error={!!erros.fgts}
+                        helperText={erros.fgts}
                     />
                     <TextField
                         name="outrosDescontos"
@@ -262,6 +367,16 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         size="small"
                         value={outrosDescontos}
                         onChange={(e) => setOutrosDescontos(formatarMoeda(e.target.value))}
+                        sx={{ ...inputStyle, flex: 1 }}
+                        error={!!erros.outrosDescontos}
+                        helperText={erros.outrosDescontos}
+                    />
+                    <TextField
+                        name="totalLiquido"
+                        label="Total líquido"
+                        size="small"
+                        value={totalLiquido}
+                        InputProps={{readOnly: true }}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>

@@ -1,12 +1,28 @@
 .container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
-  
-.main{
+
+.sidebar {
+    width: 270px;
+    background-color: var(--background-secund);
     display: flex;
     flex-direction: column;
+    padding: 1.25rem;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: width 0.3s ease;
+}
+
+.sidebarEncolhido {
+    width: 70px;
+    padding: 1.25rem 0.5rem;
+    align-items: flex-start;
+}
+
+.main {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .content {
@@ -15,7 +31,7 @@
     justify-content: space-between;
 }
 
-.contentMain{
+.contentMain {
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -23,110 +39,96 @@
     padding-left: 2rem;
 }
 
-.contentInput{
+.contentInput {
     display: flex;
     gap: 10px;
 }
 
-.inputEmpregador{
+.inputEmpregador,
+.inputYear,
+.inputDateMonth {
     height: 28px;
+    outline: none;
+    border-radius: 4px;
+    border: 1.5px solid var(--text-secund);
+    padding-left: 10px;
+}
+
+.inputEmpregador {
     width: 260px;
-    outline: none;
-    border-radius: 4px;
-    border: 1.5px solid var(--text-secund);
-    padding-left: 10px;
 }
 
-.inputEmpregador:focus{
-    border:2px solid var(--blue-200);
-}
-
-.inputDateMonth:focus{
-    border: 2px solid var(--blue-200);
-}
-
-.inputYear:focus{
-    border: 2px solid var(--blue-200);
-}
-
-.inputYear{
-    height: 28px;
+.inputYear {
     width: 100px;
-    outline: none;
-    border-radius: 4px;
-    border: 1.5px solid var(--text-secund);
-    padding-left: 10px;
 }
 
-.inputDateMonth{
-    height: 28px;
+.inputDateMonth {
     width: 170px;
-    outline: none;
-    border-radius: 4px;
-    border: 1.5px solid var(--text-secund);
-    padding-left: 10px;
 }
 
-.profile{
+.inputEmpregador:focus,
+.inputYear:focus,
+.inputDateMonth:focus {
+    border: 2px solid var(--blue-200);
+}
+
+.profile {
     display: flex;
     text-align: center;
     gap: 8px;
 }
 
-
-.profileName{
+.profileName {
     display: flex;
     color: var(--text-primary);
     font-weight: bolder;
     align-items: center;
 }
 
-
-.cards{
+.cards {
     display: flex;
     justify-content: space-around;
     gap: 20px;
 }
+
 @media (max-width: 768px) {
-  .content {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1rem;
-  }
+    .content {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+    }
 
-  .contentInput {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
+    .contentInput {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
 
-  .inputEmpregador,
-  .inputYear,
-  .inputDateMonth {
-    width: 260px;
-  }
+    .inputEmpregador,
+    .inputYear,
+    .inputDateMonth {
+        width: 260px;
+    }
 
-  .profile {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-  }
+    .profile {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
 
-  .cards {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
+    .cards {
+        flex-direction: column;
+        align-items: center;
+    }
 
-  .cards .MuiCard-root {
-    width: 90%;
-  }
+    .cards .MuiCard-root {
+        width: 90%;
+    }
 
-  .contentMain {
-    align-items: center;
-    padding: 1rem;
-  }
+    .contentMain {
+        align-items: center;
+        padding: 1rem;
+    }
 }

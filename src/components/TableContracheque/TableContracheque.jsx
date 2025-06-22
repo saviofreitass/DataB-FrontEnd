@@ -9,37 +9,37 @@ import {
     Divider,
     Box
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import ContrachequeService from "../../Services/ContrachequeService";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import { useEffect, useState } from "react"
+import ContrachequeService from "../../Services/ContrachequeService"
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material"
 
 import Warning from '../../assets/Warning.svg'
 
 export const TableContracheque = () => {
     const [dadosContracheque, setDadosContracheque] = useState([]);
-    const [expandido, setExpandido] = useState({});
+    const [expandido, setExpandido] = useState({})
 
     const carregarContracheques = async () => {
         try {
-            const response = await ContrachequeService.GetByFuncionarioId();
+            const response = await ContrachequeService.GetByFuncionarioId()
             if (response) {
-                setDadosContracheque(response.data);
+                setDadosContracheque(response.data)
             }
         } catch (error) {
-            console.error('Erro ao carregar contracheques:', error);
+            console.error('Erro ao carregar contracheques:', error)
         }
-    };
+    }
 
     useEffect(() => {
-        carregarContracheques();
-    }, []);
+        carregarContracheques()
+    }, [])
 
     const toggleExpandir = (id) => {
         setExpandido((prev) => ({
             ...prev,
             [id]: !prev[id],
-        }));
-    };
+        }))
+    }
 
     return (
         <Grid container spacing={2}>
@@ -152,5 +152,5 @@ export const TableContracheque = () => {
                 ))
             )}
         </Grid>
-    );
-};
+    )
+}

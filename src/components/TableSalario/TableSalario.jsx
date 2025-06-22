@@ -17,7 +17,6 @@ import { ModalInfo } from "../ModalInfo/ModalInfo"
 
 
 export const TableSalario = () => {
-
   const [dadosFuncionario, setDadosFuncionario] = useState([])
   const [mostrarModal, setMostarModal] = useState(false)
   const [busca, setBusca] = useState('')
@@ -34,20 +33,14 @@ export const TableSalario = () => {
   const [tipoModal, setTipoModal] = useState('sucesso')
   const [statusEnvio, setEnvioStatus] = useState({})
 
-  const handleAbrirConfirmacao = () => {
-    setConfrimacaoAberta(true)
-  }
-
-  const handleFecharConfirmacao = () => {
-    setConfrimacaoAberta(false)
-  }
+  const handleAbrirConfirmacao = () => setConfrimacaoAberta(true)
+  const handleFecharConfirmacao = () => setConfrimacaoAberta(false)
 
   const handleLancarSalario = (funcionario) => {
     setFuncionarioSelecionado(funcionario)
     setMostarModal(true)
   }
 
-  const handleAbrirModal = () => setMostarModal(true)
   const handleFecharModal = () => setMostarModal(false)
 
   const formatarCPF = (cpf) => {
@@ -116,7 +109,7 @@ export const TableSalario = () => {
   )
 
   const handleSelecionados = (id) => {
-    setSelecionados((prev) =>
+    setSelecionados(prev =>
       prev.includes(id)
         ? prev.filter(item => item !== id)
         : [...prev, id]
@@ -134,10 +127,10 @@ export const TableSalario = () => {
     setEnviando(true)
     setConfrimacaoAberta(false)
 
-    const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || [];
+    const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
     const contrachequesParaEnviar = contrachequesSalvos.filter(cc =>
       selecionados.includes(cc.funcId)
-    );
+    )
 
     if (contrachequesParaEnviar.length === 0) {
       setMensagem('Nenhum contracheque encontrado para os funcionários selecionados!')
@@ -163,10 +156,7 @@ export const TableSalario = () => {
         setEnvioStatus(prev => ({ ...prev, [contracheque.funcId]: 'success' }))
       } catch (error) {
         const mensagemErro = error?.response?.data?.message || error?.message || 'Erro desconhecido'
-        erros.push({
-          funcId: contracheque.funcId,
-          mensagem: mensagemErro
-        });
+        erros.push({ funcId: contracheque.funcId, mensagem: mensagemErro })
         mensagensErro.push(`Funcionário: ${contracheque.funcId} -> ${mensagemErro}`)
         setEnvioStatus(prev => ({ ...prev, [contracheque.funcId]: 'error' }))
       }
@@ -175,7 +165,7 @@ export const TableSalario = () => {
     if (enviadosComSucesso.length > 0) {
       const contrachequesRestantes = contrachequesSalvos.filter(cc =>
         !enviadosComSucesso.includes(cc.funcId)
-      );
+      )
       localStorage.setItem('contracheques', JSON.stringify(contrachequesRestantes))
     }
 
@@ -195,10 +185,47 @@ export const TableSalario = () => {
     setEnviando(false)
   }
 
-
   const handleFecharModalInfo = () => {
     setSucessoAberto(false)
     setMensagem('')
+  }
+
+  const paraNumero = (valor) => {
+    if (!valor) return 0
+    const numero = String(valor).replace(/\D/g, '')
+    return Number(numero) / 100
+  }
+
+  const calcularTotalLiquido = (contracheque) => {
+    if (!contracheque) {
+      return 0
+    }
+
+    const proventos =
+      paraNumero(contracheque.salarioBase) +
+      paraNumero(contracheque.horaExtra) +
+      paraNumero(contracheque.adicionalNoturno) +
+      paraNumero(contracheque.comissoes) +
+      paraNumero(contracheque.beneficios)
+
+    const descontos =
+      paraNumero(contracheque.inss) +
+      paraNumero(contracheque.irrf) +
+      paraNumero(contracheque.fgts) +
+      paraNumero(contracheque.outrosDescontos)
+
+    return proventos - descontos;
+  }
+
+  const formatarMoeda = (valor) => {
+    if (valor === undefined || valor === null) {
+      return ''
+    }
+
+    return valor.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    })
   }
 
   return (
@@ -210,7 +237,7 @@ export const TableSalario = () => {
         sx={{
           ...inputStyle,
           flex: 1,
-          width: '1183px',
+          width: '98%',
           marginTop: '20px',
           borderLeft: 'none',
           borderRight: 'none',
@@ -225,124 +252,135 @@ export const TableSalario = () => {
       />
       <TableContainer
         component={Paper}
-        sx={{ width: 1183, border: 1, borderColor: 'var(--blue-200)' }}
+        sx={{ maxWidth: '98%', border: 1, borderColor: 'var(--blue-200)' }}
       >
         <TableHead>
           <TableRow>
-            <TableCell align="left">Selec</TableCell>
-            <TableCell align="left">CPF</TableCell>
-            <TableCell align="left">Nome</TableCell>
-            <TableCell align="left">Contador</TableCell>
-            <TableCell align="left">Empregador</TableCell>
-            <TableCell align="left">Status</TableCell>
-            <TableCell align="left">Edit</TableCell>
-            <TableCell align="left">Log</TableCell>
-            <TableCell align="left">
+            <TableCell>Selec</TableCell>
+            <TableCell>CPF</TableCell>
+            <TableCell>Nome</TableCell>
+            <TableCell>Contador</TableCell>
+            <TableCell>Empregador</TableCell>
+            <TableCell>Total</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Edit</TableCell>
+            <TableCell>Log</TableCell>
+            <TableCell>
               <Button
                 onClick={handleAbrirConfirmacao}
-                sx={{
-                  background: 'var(--blue-200)'
-                }}
+                sx={{ background: 'var(--blue-200)' }}
                 variant="contained"
-                color="primary"
                 startIcon={<SaveAlt />}
                 disabled={enviando || selecionados.length === 0}
               >
                 {enviando ? 'Enviando...' : 'Enviar'}
               </Button>
             </TableCell>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {listaFiltrada.map((funcionario) => (
-            <TableRow key={funcionario.id}>
-              <TableCell>
-                {selecionados.includes(funcionario.id) ? (
-                  <CheckBox
-                    onClick={() => handleSelecionados(funcionario.id)}
-                    sx={{
-                      color: 'var(--ativo)',
-                      cursor: 'pointer',
-                      borderRadius: 5,
-                      ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
-                    }}
+          {listaFiltrada.map((funcionario) => {
+            const contrachequesSalvos = JSON.parse(localStorage.getItem('contracheques')) || []
+            const contrachequeFuncionario = contrachequesSalvos.find(cc => cc.funcId === funcionario.id)
+            const totalLiquido = contrachequeFuncionario ? calcularTotalLiquido(contrachequeFuncionario) : 0
+
+            return (
+              <TableRow key={funcionario.id}>
+                <TableCell>
+                  {selecionados.includes(funcionario.id) ? (
+                    <CheckBox
+                      onClick={() => handleSelecionados(funcionario.id)}
+                      sx={{ color: 'var(--ativo)', cursor: 'pointer' }}
+                    />
+                  ) : (
+                    <CheckBoxOutlineBlank
+                      onClick={() => handleSelecionados(funcionario.id)}
+                      sx={{ color: 'var(--blue-200)', cursor: 'pointer' }}
+                    />
+                  )}
+                </TableCell>
+                <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>
+                  {formatarCPF(funcionario.pessoa.cpfcnpj)}
+                </TableCell>
+                <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>
+                  {funcionario.pessoa.nome}
+                </TableCell>
+                <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>
+                  {dadosContador?.pessoa?.nome}
+                </TableCell>
+                <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>
+                  {mapaEmpregadores[funcionario.empregadorId] || 'Não encontrado'}
+                </TableCell>
+                <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder', whiteSpace: 'nowrap' }}>
+                  {contrachequeFuncionario ? formatarMoeda(totalLiquido) : '-'}
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={funcionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
+                    color={funcionario.pessoa.ativo ? 'success' : 'error'}
+                    size="small"
+                    variant="outlined"
                   />
-                ) : (
-                  <CheckBoxOutlineBlank
-                    onClick={() => handleSelecionados(funcionario.id)}
-                    sx={{
-                      color: 'var(--blue-200)',
-                      cursor: 'pointer',
-                      borderRadius: 5,
-                      ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
-                    }}
+                </TableCell>
+                <TableCell>
+                  <Edit
+                    sx={{ color: 'var(--blue-200)', cursor: 'pointer' }}
+                    onClick={() => handleLancarSalario(funcionario)}
                   />
-                )}
-              </TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{formatarCPF(funcionario.pessoa.cpfcnpj)}</TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{funcionario.pessoa.nome}</TableCell>
-              <TableCell sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{dadosContador?.pessoa?.nome}</TableCell>
-              <TableCell sx={{ color: 'var(--empregador)', fontWeight: 'bolder' }}>{mapaEmpregadores[funcionario.empregadorId] || 'Não encontrado'}</TableCell>
-              <TableCell>
-                <Chip
-                  label={funcionario.pessoa.ativo ? 'Ativo' : 'Inativo'}
-                  color={funcionario.pessoa.ativo ? 'success' : 'error'}
-                  size="small"
-                  variant="outlined"
-                />
-              </TableCell>
-              <TableCell>
-                <Edit
-                  sx={{
-                    color: 'var(--blue-200)',
-                    cursor: 'pointer',
-                    borderRadius: 5,
-                    ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' }
-                  }}
-                  onClick={() => handleLancarSalario(funcionario)}
-                />
-              </TableCell>
-              <TableCell>
-                {statusEnvio[funcionario.id] === 'success' ? (
-                  <CheckCircleOutline sx={{ color: 'var(--ativo)' }} />
-                ) : statusEnvio[funcionario.id] === 'error' ? (
-                  <ErrorOutline sx={{ color: 'var(--danger)' }} />
-                ) : (
-                  <PendingOutlined sx={{ color: '#ff9966' }} />
-                )}
-              </TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          ))}
-          <ModalContracheque
-            open={mostrarModal}
-            onClose={handleFecharModal}
-            funcionario={funcionarioSelecionado}
-            empregador={empregadores.find(emp => emp.id === funcionarioSelecionado?.empregadorId)}
-          />
-          <ModalConfirmacao
-            open={confirmacaoAberta}
-            onClose={handleFecharConfirmacao}
-            onConfirm={enviarFolhasSelecionadas}
-            title="Confirmar Envio"
-            message={`Deseja enviar os contracheques dos ${selecionados.length} funcionários selecionados?`}
-            subMessage="Esta ação fará o envio da folha de pagamento de todos os funcionários selecionados!"
-          />
-          <ModalInfo
-            open={sucessoAberto}
-            onClose={handleFecharModalInfo}
-            tipo={tipoModal}
-            mensagem={mensagem}
-          />
+                </TableCell>
+                <TableCell>
+                  {statusEnvio[funcionario.id] === 'success' ? (
+                    <CheckCircleOutline sx={{ color: 'var(--ativo)' }} />
+                  ) : statusEnvio[funcionario.id] === 'error' ? (
+                    <ErrorOutline sx={{ color: 'var(--danger)' }} />
+                  ) : (
+                    <PendingOutlined sx={{ color: '#ff9966' }} />
+                  )}
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </TableContainer>
+
+      <ModalContracheque
+        open={mostrarModal}
+        onClose={handleFecharModal}
+        funcionario={funcionarioSelecionado}
+        empregador={empregadores.find(emp => emp.id === funcionarioSelecionado?.empregadorId)}
+      />
+
+      <ModalConfirmacao
+        open={confirmacaoAberta}
+        onClose={handleFecharConfirmacao}
+        onConfirm={enviarFolhasSelecionadas}
+        title="Confirmar Envio"
+        message={`Deseja enviar os contracheques dos ${selecionados.length} funcionários selecionados?`}
+        subMessage="Esta ação fará o envio da folha de pagamento de todos os funcionários selecionados!"
+      />
+
+      <ModalInfo
+        open={sucessoAberto}
+        onClose={handleFecharModalInfo}
+        tipo={tipoModal}
+        mensagem={mensagem}
+      />
     </>
   );
-};
+}
 
 const inputStyle = {
   '& .MuiOutlinedInput-root.Mui-focused fieldset': {
     borderColor: 'var(--blue-200)',
     borderWidth: '2px',
   },
-};
+}

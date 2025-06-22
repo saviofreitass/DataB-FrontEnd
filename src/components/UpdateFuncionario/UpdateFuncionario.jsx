@@ -1,86 +1,171 @@
-import { Alert, Box, Button, Chip, Grid, Modal, TextField } from '@mui/material';
-import { Add, Cancel, Edit, SaveAlt } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
-import FuncionarioService from '../../Services/FuncionarioService';
+import { Alert, Box, Button, Chip, Modal, TextField } from '@mui/material'
+import { Cancel, SaveAlt } from '@mui/icons-material'
+import { useEffect, useState } from 'react'
+import FuncionarioService from '../../Services/FuncionarioService'
 
+const inputStyle = {
+    '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+        borderColor: 'var(--blue-200)',
+        borderWidth: '2px',
+    },
+}
 
-export const UpdateFuncionario = ({ open, onClose, funcionario, onUpdate }) => {
-
+export const UpdateFuncionario = ({ open, onClose, funcionario = null, onUpdate }) => {
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
-    const [ativo, setAtivo] = useState()
-
+    const [ativo, setAtivo] = useState(false)
     const [cpf, setCpf] = useState('')
     const [telefone, setTelefone] = useState('')
+    const [formData, setFormData] = useState({
+        id: '',
+        pessoa: { nome: '', cpfcnpj: '', telefone: '' },
+        usuario: { email: '' },
+        cargo: '',
+        setor: '',
+        salario: '',
+        dataAdmissao: ''
+    });
 
-    const formatarCpf = (valor) => {
-        return valor
-            .replace(/\D/g, '')
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    const formatarDataParaAPI = (dataString) => {
+        if (!dataString) return null
+
+        try {
+            const date = new Date(dataString)
+            return date.toISOString()
+        } catch (e) {
+            console.error("Erro ao formatar data:", e)
+            return null;
+        }
     }
 
-    const formatarTelefone = (valor) => {
-        const telefoneLimpo = valor.replace(/\D/g, '')
 
-        if (telefoneLimpo.lenght <= 10) {
-            return telefoneLimpo
-                .replace(/^(\d{2})(\d)/, '($1) $2')
-                .replace(/(\d{4})(\d)/, '$1-$2')
-        } else {
-            return telefoneLimpo
-                .replace(/^(\d{2})(\d)/, '($1) $2')
-                .replace(/(\d{5})(\d)/, '$1-$2')
+    const formatarDataParaInput = (dataAPI) => {
+        if (!dataAPI) return ''
+
+        try {
+            if (typeof dataAPI === 'string' && dataAPI.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                return dataAPI
+            }
+
+            const date = new Date(dataAPI);
+            if (!isNaN(date.getTime())) {
+                return date.toISOString().split('T')[0];
+            }
+
+            return ''
+        } catch (e) {
+            console.error("Erro ao formatar data para input:", e)
+            return ''
         }
-
-        return valor
     }
 
     useEffect(() => {
         if (funcionario) {
-            setTelefone(formatarTelefone(funcionario.telefone || ''))
-            setCpf(formatarCpf(funcionario.cpfcnpj || ''))
-            setAtivo(funcionario.ativo)
+            setFormData({
+                ...funcionario,
+                pessoa: funcionario.pessoa || { nome: '', cpfcnpj: '', telefone: '' },
+                usuario: funcionario.usuario || { email: '' },
+                dataAdmissao: formatarDataParaInput(funcionario.dataAdmissao)
+            });
+            setTelefone(formatarTelefone(funcionario.pessoa?.telefone || ''))
+            setCpf(formatarCpf(funcionario.pessoa?.cpfcnpj || ''))
+            setAtivo(funcionario.ativo || false)
+        } else {
+            setFormData({
+                id: '',
+                pessoa: { nome: '', cpfcnpj: '', telefone: '' },
+                usuario: { email: '' },
+                cargo: '',
+                setor: '',
+                salario: '',
+                dataAdmissao: ''
+            })
+            setTelefone('')
+            setCpf('')
+            setAtivo(false)
         }
-    }, [funcionario])
+    }, [funcionario, open])
 
-    useEffect(() => {
-        if (mensagem.texto) {
-            const tempoSaida = setTimeout(() => setMensagem({ tipo: '', texto: '' }), 3500)
-            return () => clearTimeout(tempoSaida)
+    const formatarCpf = (valor) => {
+        if (!valor) return ''
+        return valor
+            .replace(/\D/g, '')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+    }
+
+    const formatarTelefone = (valor) => {
+        if (!valor) return ''
+        const telefoneLimpo = valor.replace(/\D/g, '')
+
+        if (telefoneLimpo.length <= 10) {
+            return telefoneLimpo
+                .replace(/^(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            return telefoneLimpo
+                .replace(/^(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{5})(\d)/, '$1-$2');
         }
-    }, [mensagem])
+    }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+    const handleChange = (e) => {
+        const { name, value } = e.target
 
-        const formData = new FormData(e.currentTarget)
-        const dadosAtualizados = Object.fromEntries(formData.entries())
-
-        if (!dadosAtualizados.senha) {
-            delete dadosAtualizados.senha
-        }
-
-        dadosAtualizados.ativo = ativo
-        const cpfLimpo = cpf.replace(/\D/g, '')
-        dadosAtualizados.cpfcnpj = cpfLimpo
-        dadosAtualizados.telefone = telefone.replace(/\D/g, '')
-
-        try {
-            const response = await FuncionarioService.update(funcionario.id, dadosAtualizados)
-            const mensagemSucesso = response.data?.mesage || "Funcionário atualizado com sucesso!"
-            setMensagem({ tipo: 'success', texto: mensagemSucesso })
-
-            if (onUpdate) onUpdate()
-        } catch (error) {
-            const mensagemErro = error.response?.data?.mesage || "Erro ao tentar atualizar o funcionário!"
-            setMensagem({ tipo: 'error', texto: mensagemErro })
-            console.error("Erro ao tentar atualizar o funcionario!", error)
+        if (name.includes('.')) {
+            const [parent, child] = name.split('.');
+            setFormData(prev => ({
+                ...prev,
+                [parent]: {
+                    ...prev[parent],
+                    [child]: value
+                }
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }))
         }
     }
 
     const handleSetAtivo = () => {
-        setAtivo((prev) => !prev)
+        setAtivo(prev => !prev);
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const senhaInput = e.currentTarget.elements.namedItem('senha')?.value
+
+        const dadosAtualizados = {
+            ...formData,
+            ativo,
+            pessoa: {
+                ...formData.pessoa,
+                cpfcnpj: cpf.replace(/\D/g, ''),
+                telefone: telefone.replace(/\D/g, '')
+            },
+            dataAdmissao: formatarDataParaAPI(formData.dataAdmissao),
+            usuario: {
+                ...formData.usuario,
+
+                ...(senhaInput && { senha: senhaInput })
+            }
+        }
+
+        if (!senhaInput) {
+            delete dadosAtualizados.usuario.senha
+        }
+
+        try {
+            const response = await FuncionarioService.update(formData.id, dadosAtualizados)
+            setMensagem({ tipo: 'success', texto: response.data?.message || "Funcionário atualizado com sucesso!" })
+            if (onUpdate) onUpdate()
+        } catch (error) {
+            setMensagem({ tipo: 'error', texto: error.response?.data?.message || "Erro ao atualizar funcionário!" })
+            console.error("Erro ao atualizar funcionário:", error)
+        }
     }
 
     return (
@@ -107,42 +192,31 @@ export const UpdateFuncionario = ({ open, onClose, funcionario, onUpdate }) => {
                 }}
             >
                 {mensagem.texto && (
-
                     <Alert severity={mensagem.tipo}>
                         {mensagem.texto}
                     </Alert>
                 )}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2,
-                    }}
-                >
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         name="id"
-                        defaultValue={funcionario?.id}
+                        value={formData.id || ''}
                         InputProps={{ readOnly: true }}
                         label="Id"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
-                    >
-                    </TextField>
+                    />
                     <Button
                         type='submit'
-                        sx={{
-                            background: 'var(--blue-200)'
-                        }}
+                        sx={{ background: 'var(--blue-200)' }}
                         variant="contained"
                         color="primary"
                         startIcon={<SaveAlt />}
-
                     >
                         Salvar
                     </Button>
                     <Button
-                        sx={{
-                            border: '1px solid var(--danger)'
-                        }}
+                        sx={{ border: '1px solid var(--danger)' }}
                         variant="outlined"
                         color="error"
                         startIcon={<Cancel />}
@@ -151,25 +225,58 @@ export const UpdateFuncionario = ({ open, onClose, funcionario, onUpdate }) => {
                         Cancelar
                     </Button>
                 </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2
-                    }}
-                >
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
-                        name="nome"
-                        defaultValue={funcionario?.nome}
+                        name="pessoa.nome"
+                        value={formData.pessoa.nome || ''}
+                        onChange={handleChange}
                         label="Nome"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
+                        required
                     />
                     <TextField
-                        name="cpfcnpj"
-
+                        name="pessoa.cpfcnpj"
                         value={cpf}
                         onChange={(e) => setCpf(formatarCpf(e.target.value))}
                         label="CPF"
+                        size="small"
+                        sx={{ ...inputStyle, flex: 1 }}
+                        required
+                    />
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <TextField
+                        name="usuario.email"
+                        value={formData.usuario.email || ''}
+                        onChange={handleChange}
+                        label="E-mail"
+                        size="small"
+                        sx={{ ...inputStyle, flex: 1 }}
+                        required
+                    />
+                    <TextField
+                        name="senha"
+                        label="Senha"
+                        type="password"
+                        size="small"
+                        sx={{ ...inputStyle, flex: 1 }}
+                        placeholder="Deixe em branco para manter a atual"
+                        value={formData.usuario.senha === "Sem senha para voce!" ? "" : formData.usuario.senha || ""}
+                        onChange={(e) => handleChange({
+                            target: {
+                                name: "usuario.senha",
+                                value: e.target.value
+                            }
+                        })}
+                    />
+                    <TextField
+                        name="pessoa.telefone"
+                        value={telefone}
+                        onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+                        label="Telefone"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
                     />
@@ -177,76 +284,39 @@ export const UpdateFuncionario = ({ open, onClose, funcionario, onUpdate }) => {
 
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
-                        name="email"
-                        defaultValue={funcionario?.email}
-                        label="E-mail"
-                        size="small"
-                        sx={{ ...inputStyle, flex: 1 }}
-                    />
-                    <TextField
-                        name="senha"
-                        defaultValue={funcionario?.senha}
-                        label="Senha"
-                        type="password"
-                        size="small"
-                        sx={{ ...inputStyle, flex: 1 }}
-                    />
-                    <TextField
-                        name="telefone"
-                        value={telefone}
-                        onChange={(e) => setTelefone (formatarTelefone(e.target.value))}
-                        label="Telefone"
-                        size="small"
-                        sx={{ ...inputStyle, flex: 1 }}
-                    />
-                </Box>
-
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2
-                    }}>
-                    <TextField
                         name="cargo"
-                        defaultValue={funcionario?.cargo}
+                        value={formData.cargo || ''}
+                        onChange={handleChange}
                         label="Cargo"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
                         name="setor"
-                        defaultValue={funcionario?.setor}
+                        value={formData.setor || ''}
+                        onChange={handleChange}
                         label="Setor"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                     <TextField
                         name="salario"
-                        defaultValue={funcionario?.salario}
+                        value={formData.salario || ''}
+                        onChange={handleChange}
                         label="Salário"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
+                        type="number"
                     />
                     <TextField
                         name="dataAdmissao"
-                        defaultValue={funcionario?.dataAdmissao}
-                        label="Data Admissao"
+                        value={formData.dataAdmissao || ''}
+                        onChange={handleChange}
+                        type="date"
+                        label="Data Admissão"
                         size="small"
                         sx={{ ...inputStyle, flex: 1 }}
-                    />
-                    <TextField
-                        name="usuarioCriacao"
-                        defaultValue={funcionario?.usuarioCriacao}
-                        label="Usuario"
-                        size="small"
-                        sx={{ ...inputStyle, flex: 1 }}
-                    />
-                    <TextField
-                        name="usuarioAtualizacao"
-                        defaultValue={funcionario?.usuarioAtualizacao}
-                        label="Usuario"
-                        size="small"
-                        sx={{ ...inputStyle, flex: 1 }}
+                        InputLabelProps={{ shrink: true }}
                     />
                     <Chip
                         label={ativo ? 'Ativo' : 'Inativo'}
@@ -261,10 +331,3 @@ export const UpdateFuncionario = ({ open, onClose, funcionario, onUpdate }) => {
         </Modal>
     )
 }
-
-const inputStyle = {
-    '& .MuiOutlinedInput-root.Mui-focused fieldset': {
-        borderColor: 'var(--blue-200)',
-        borderWidth: '2px',
-    },
-};
