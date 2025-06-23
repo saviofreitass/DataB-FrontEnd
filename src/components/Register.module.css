@@ -16,7 +16,7 @@
     padding: 30px;
     border-radius: 8px;
     width: 550px;
-    height: 515px;
+    height: 680px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -133,6 +133,17 @@ input{
     z-index: 9999;
     animation: fadeInUp 0.4s ease-in-out;
 }
+
+.validado {
+    color: var(--ativo);
+    text-decoration: line-through;
+    transition: all 0.3s ease;
+}
+
+.naoValidado {
+    color: "var(--blue-300)";
+}
+
 
 @keyframes fadeInUp {
     from {

@@ -1,11 +1,20 @@
 import style from './Register.module.css'
 import Logo from '../assets/Logo.png'
 import { useState } from 'react';
-import { Alert } from '@mui/material';
+import { Alert, Box, List, ListItem, Typography } from '@mui/material';
 import { LinearDeterminate } from './loading/LinearDeterminate';
 import ContadorService from '../Services/ContadorService';
 
 export const Register = ({ onClose }) => {
+
+    const [validacoesSenha, setValidacoesSenha] = useState({
+        temMinuscula: false,
+        temMaiuscula: false,
+        temNumero: false,
+        temEspecial: false,
+        tamanhoMinimo: false,
+    })
+    const [erro, setErro] = useState("")
 
     const [showAlert, setShowAlert] = useState(null);
 
@@ -42,7 +51,12 @@ export const Register = ({ onClose }) => {
             ...prev,
             [name]: value
         }))
+
+        if (name === 'senha') {
+            validarSenha(value);
+        }
     }
+
 
     const handleRegister = async (e) => {
         e.preventDefault(e);
@@ -57,11 +71,23 @@ export const Register = ({ onClose }) => {
             }, 5000)
         } catch (error) {
             console.error("Erro no registro", error)
+            const mensagemErro = error?.response?.data?.message || "Erro ao fazer registro."
+            setErro(mensagemErro);
             setShowAlert('error')
             setTimeout(() => {
                 setShowAlert(false)
             }, 5000)
         }
+    }
+
+    const validarSenha = (senha) => {
+        setValidacoesSenha({
+            temMinuscula: /[a-z]/.test(senha),
+            temMaiuscula: /[A-Z]/.test(senha),
+            temNumero: /\d/.test(senha),
+            temEspecial: /[.@$!%*?&]/.test(senha),
+            tamanhoMinimo: senha.length >= 8
+        })
     }
 
 
@@ -137,6 +163,30 @@ export const Register = ({ onClose }) => {
                 </form>
 
                 <button className={style.fechar} onClick={onClose}>Fechar</button>
+                <Alert severity='info'>
+                    <Typography variant='body2'>
+                        Sua senha deve conter os seguintes critérios:
+                    </Typography>
+                    <Box sx={{ marginTop: '10px', display: 'flex', flexDirection: 'column' }}>
+                        <Typography className={validacoesSenha.temMinuscula ? style.validado : style.naoValidado} variant='body2'>
+                            • Pelo menos uma letra minúscula.
+                        </Typography>
+                        <Typography className={validacoesSenha.temMaiuscula ? style.validado : style.naoValidado} variant='body2'>
+                            • Pelo menos uma letra maiúscula.
+                        </Typography>
+                        <Typography className={validacoesSenha.temNumero ? style.validado : style.naoValidado} variant='body2'>
+                            • Pelo menos um número.
+                        </Typography>
+                        <Typography className={validacoesSenha.temEspecial ? style.validado : style.naoValidado} variant='body2'>
+                            • Pelo menos um caractere especial [@, $, !, %, *, ?, &].
+                        </Typography>
+                        <Typography className={validacoesSenha.tamanhoMinimo ? style.validado : style.naoValidado} variant='body2'>
+                            • Pelo menos 8 caracteres.
+                        </Typography>
+                    </Box>
+                </Alert>
+
+
             </div>
             {showAlert && (
                 <div className={style.alertContainer}>
@@ -144,7 +194,7 @@ export const Register = ({ onClose }) => {
                         <Alert variant='filled' severity='success'>Registro feito com sucesso!</Alert>
                     )}
                     {showAlert === 'error' && (
-                        <Alert variant='filled' severity='error'>Erro: Todos os campos devem ser preenchidos.</Alert>
+                        <Alert variant='filled' severity='error'>Erro: {erro}</Alert>
                     )}
                     <LinearDeterminate />
                 </div>

@@ -1,17 +1,45 @@
-import { Logout, Settings } from "@mui/icons-material"
+import { Logout, ManageAccounts, Settings } from "@mui/icons-material"
 import { Box, Divider, IconButton, Popover, Typography } from "@mui/material"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ModalConfirmacao } from "../ModalConfirmacao/ModalConfirmacao"
+import { decodeJWT } from "../Utils/DecodeToken"
+import ContadorService from "../../Services/ContadorService"
+import { DrawerConfigAccount } from '../Drawer/DrawerConfigAccount'
+
 
 export const MenuAccount = ({ anchorEl, onClose }) => {
     const [modalAberto, setModalAberto] = useState(false)
     const navigate = useNavigate()
+    const [drawerAberto, setDrawerAberto] = useState(false)
+    const [dadosDoContador, setDadosDoContador] = useState(null)
+
 
     const handleLogout = () => {
         localStorage.clear()
         navigate('/')
     }
+
+    const handleAbrirConfiguracoes = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            const payload = decodeJWT(token)
+            const id = payload?.id
+
+            if (!id) {
+                console.error('ID não encontrado no token')
+                return
+            }
+
+            const response = await ContadorService.getId(id)
+            setDadosDoContador(response.data)
+            setDrawerAberto(true)
+        } catch (error) {
+            console.error('Erro ao buscar dados do contador:', error)
+        }
+    }
+
+
 
     const open = Boolean(anchorEl)
     const id = open ? 'simple-popover' : undefined
@@ -32,7 +60,7 @@ export const MenuAccount = ({ anchorEl, onClose }) => {
                     horizontal: 'right',
                 }}
             >
-                <Box sx={{ p: 2, width: '200px', }}>
+                <Box sx={{ p: 2, width: '230px', }}>
                     <Box
                         sx={{
                             display: 'flex',
@@ -60,6 +88,22 @@ export const MenuAccount = ({ anchorEl, onClose }) => {
                             color: 'var(--blue-300)',
                             ":hover": { opacity: 0.7 }
                         }}
+                        onClick={handleAbrirConfiguracoes}
+                    >
+                        <ManageAccounts />
+                        <Typography sx={{ whiteSpace: 'nowrap' }}>Configurações da conta</Typography>
+                    </Box>
+
+                    <Box
+                        sx={{
+                            marginTop: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            cursor: 'pointer',
+                            color: 'var(--blue-300)',
+                            ":hover": { opacity: 0.7 }
+                        }}
                         onClick={() => setModalAberto(true)}
                     >
                         <Logout />
@@ -76,6 +120,13 @@ export const MenuAccount = ({ anchorEl, onClose }) => {
                 message="Deseja realmente sair da conta?"
                 subMessage="Você será redirecionado para a tela de login."
             />
+
+            <DrawerConfigAccount
+                open={drawerAberto}
+                onClose={() => setDrawerAberto(false)}
+                dados={dadosDoContador}
+            />
+
         </>
     )
 }

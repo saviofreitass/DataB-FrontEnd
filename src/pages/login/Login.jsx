@@ -22,21 +22,23 @@ export const Login = () => {
     }
 
     const handleLogin = async (e) => {
-        e.preventDefault(e)
+        e.preventDefault();
         try {
             const response = await LoginService.post(credenciais)
             localStorage.setItem('token', response.data.acessToken)
 
-            setErro("");
+            setErro("")
             setShowAlert('success')
             setTimeout(() => {
                 setShowAlert(null)
                 navigate('/home', { replace: true })
-            }, 5000)
+            }, 3000)
         } catch (error) {
             console.error("Erro ao tentar entrar no sistema", error)
 
-            setErro("email ou senha estão incorretos.");
+            const mensagemErro = error?.response?.data?.message || "Erro ao fazer login."
+
+            setErro(mensagemErro)
             setShowAlert('error')
             setTimeout(() => {
                 setShowAlert(null)
@@ -44,9 +46,10 @@ export const Login = () => {
         }
     }
 
+
     useEffect(() => {
         const token = localStorage.getItem('token')
-        if(token){
+        if (token) {
             navigate('/home', { replace: true })
         }
     }, [])
@@ -110,7 +113,7 @@ export const Login = () => {
                         <Alert variant='filled' severity='success'>Login feito com sucesso!</Alert>
                     )}
                     {showAlert === 'error' && (
-                        <Alert variant='filled' severity='error'>Erro: Credenciais incorretas.</Alert>
+                        <Alert variant='filled' severity='error'>Erro: {erro}</Alert>
                     )}
                     <LinearDeterminate />
                 </div>
