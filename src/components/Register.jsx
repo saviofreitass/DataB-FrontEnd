@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Alert, Box, List, ListItem, Typography } from '@mui/material';
 import { LinearDeterminate } from './loading/LinearDeterminate';
 import ContadorService from '../Services/ContadorService';
+import LogoBigData from '../assets/Logo-Big-Data-sf.png'
+
 
 export const Register = ({ onClose }) => {
 
@@ -95,7 +97,7 @@ export const Register = ({ onClose }) => {
         <div className={style.modalOverlay}>
             <div className={style.modalContent}>
                 <div className={style.logoContainer}>
-                    <img src={Logo} alt="Logomarca" />
+                    <img src={LogoBigData} alt="Logomarca" className={style.logoImage} />
                 </div>
                 <h2>Bem vindo(a), contator(a), registre-se!</h2>
                 <form>

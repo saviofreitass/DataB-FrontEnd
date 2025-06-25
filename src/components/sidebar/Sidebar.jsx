@@ -5,6 +5,7 @@ import {
     Home, HomeRepairService, ManageAccounts, Engineering,
     RequestPage, MonetizationOn, Menu, ChevronLeft
 } from '@mui/icons-material'
+import BigDataNome from '../../assets/Big-Data-Nome.png'
 
 export const Sidebar = ({
     voltarHome,
@@ -22,7 +23,7 @@ export const Sidebar = ({
     return (
         <div className={style.container}>
             <div className={`${style.topo} ${encolhido ? style.topoEncolhido : ''}`}>
-                {!encolhido && <img src={Icon} alt="ícone logo marca" className={style.logo} />}
+                {!encolhido && <img src={BigDataNome} alt="ícone logo marca" className={style.logo} />}
                 <button className={style.botaoToggle} onClick={() => setEncolhido(!encolhido)}>
                     {encolhido ? <Menu /> : <ChevronLeft />}
                 </button>

@@ -16,7 +16,7 @@
     padding: 30px;
     border-radius: 8px;
     width: 550px;
-    height: 680px;
+    height: 730px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -101,6 +101,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.logoImage {
+    width: 150px;
+    height: auto; 
+    max-width: 100%; 
 }
 
 .inputContainer{

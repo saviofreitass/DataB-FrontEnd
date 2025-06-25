@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { LinearDeterminate } from '../../components/loading/LinearDeterminate';
 import LoginService from '../../Services/LoginService.js'
+import LogoBigData from '../../assets/Logo-Big-Data-sf.png'
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -63,7 +64,7 @@ export const Login = () => {
         <div className={style.container}>
             <main>
                 <div className={style.containerLogo}>
-                    <img src={Logo} alt="logo-marca" />
+                    <img src={LogoBigData} alt="logo-marca"  className={style.logoImage}/>
                 </div>
                 <div className={style.containerFilho}>
                     <h2>Bem vindo(a)!</h2>
