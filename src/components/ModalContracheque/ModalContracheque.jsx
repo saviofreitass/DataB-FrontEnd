@@ -53,20 +53,20 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
     }
 
     const criarPayload = () => ({
-        funcId: funcionario?.id || '',
-        empregadorId: empregador?.id || '',
-        dataPagamento,
-        dataRefInicio,
-        dataRefFim,
-        salarioBase: removerFormatacao(salarioBase || funcionario?.salario || ''),
-        horaExtra: removerFormatacao(horaExtra),
-        adicionalNoturno: removerFormatacao(adicionalNoturno),
-        comissoes: removerFormatacao(comissoes),
-        beneficios: removerFormatacao(beneficios),
-        inss: removerFormatacao(inss),
-        irrf: removerFormatacao(irrf),
-        fgts: removerFormatacao(fgts),
-        outrosDescontos: removerFormatacao(outrosDescontos)
+        funcId: String(funcionario?.id || ''),
+        empregadorId: String(empregador?.id || ''),
+        dataPagamento: String(dataPagamento),
+        dataRefInicio: String(dataRefInicio),
+        dataRefFim: String(dataRefFim),
+        salarioBase: String(removerFormatacao(salarioBase || funcionario?.salario || '')),
+        horaExtra: String(removerFormatacao(horaExtra)),
+        adicionalNoturno: String(removerFormatacao(adicionalNoturno)),
+        comissoes: String(removerFormatacao(comissoes)),
+        beneficios: String(removerFormatacao(beneficios)),
+        inss: String(removerFormatacao(inss)),
+        irrf: String(removerFormatacao(irrf)),
+        fgts: String(removerFormatacao(fgts)),
+        outrosDescontos: String(removerFormatacao(outrosDescontos))
     })
 
 
@@ -376,7 +376,7 @@ export const ModalContracheque = ({ open, onClose, funcionario, empregador }) =>
                         label="Total líquido"
                         size="small"
                         value={totalLiquido}
-                        InputProps={{readOnly: true }}
+                        InputProps={{ readOnly: true }}
                         sx={{ ...inputStyle, flex: 1 }}
                     />
                 </Box>
