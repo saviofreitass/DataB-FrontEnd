@@ -36,20 +36,24 @@ export const DrawerConfigAccount = ({ open, onClose, dados }) => {
     const handleSalvar = async () => {
         try {
             await ContadorService.put(dados.id, {
+                id: dados.id,
                 pessoa: {
+                    id: dados.pessoa.id,
                     nome: contador.nome,
                     telefone: contador.telefone,
                     cpfcnpj: contador.cpfcnpj
                 },
                 usuario: {
+                    id: dados.usuario.id,
                     email: contador.email
                 },
                 crc: contador.crc
             })
             setAlert({ tipo: 'success', mensagem: 'Dados atualizados com sucesso!' })
         } catch (error) {
+            const mensagemErro = error?.response.data.message || error?.message || 'Não foi possível atualizar os dados da sua conta.'
             console.error('Erro ao atualizar dados:', error)
-            setAlert({ tipo: 'error', mensagem: 'Erro ao atualizar os dados.' })
+            setAlert({ tipo: 'error', mensagem: mensagemErro })
         }
     }
 
@@ -91,6 +95,7 @@ export const DrawerConfigAccount = ({ open, onClose, dados }) => {
                     <TextField
                         label='Senha'
                         name='senha'
+                        type='password'
                         value={contador.senha}
                         onChange={handleChange}
                         fullWidth

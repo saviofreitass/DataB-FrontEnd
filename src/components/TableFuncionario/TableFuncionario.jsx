@@ -114,7 +114,7 @@ export const TableFuncionario = ({ openDrawer  }) => {
   }, [contadorId])
 
   if (mostrarRegistro) {
-    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={empregadorSelecionado} />;
+    return <RegistroFuncionario onCancelar={handleFecharRegistro} idEmpregadorId={empregadorSelecionado} onFuncionarioCadastrado={carregarFuncionarios}/>;
   }
 
   return (

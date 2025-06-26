@@ -8,7 +8,7 @@ import ContadorService from "../../Services/ContadorService"
 import { DrawerConfigAccount } from '../Drawer/DrawerConfigAccount'
 
 
-export const MenuAccount = ({ anchorEl, onClose }) => {
+export const MenuAccount = ({ anchorEl, onClose, onAbrirDrawer }) => {
     const [modalAberto, setModalAberto] = useState(false)
     const navigate = useNavigate()
     const [drawerAberto, setDrawerAberto] = useState(false)
@@ -32,12 +32,13 @@ export const MenuAccount = ({ anchorEl, onClose }) => {
             }
 
             const response = await ContadorService.getId(id)
-            setDadosDoContador(response.data)
-            setDrawerAberto(true)
+            onAbrirDrawer(response.data)
+            onClose()
         } catch (error) {
             console.error('Erro ao buscar dados do contador:', error)
         }
     }
+
 
 
 
@@ -120,13 +121,6 @@ export const MenuAccount = ({ anchorEl, onClose }) => {
                 message="Deseja realmente sair da conta?"
                 subMessage="Você será redirecionado para a tela de login."
             />
-
-            <DrawerConfigAccount
-                open={drawerAberto}
-                onClose={() => setDrawerAberto(false)}
-                dados={dadosDoContador}
-            />
-
         </>
     )
 }

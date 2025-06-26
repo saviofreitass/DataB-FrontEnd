@@ -6,7 +6,7 @@ import { decodeJWT } from "../../components/Utils/DecodeToken"
 
 import { useEffect, useState } from "react"
 
-export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
+export const RegistroFuncionario = ({ onCancelar, idEmpregadorId, onFuncionarioCadastrado }) => {
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
     const [userId, setUserId] = useState('')
     const [dadosFuncionario, setDadosFuncionario] = useState({
@@ -99,12 +99,25 @@ export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
             const response = await FuncionarioService.insert(payload)
             const mensagemSucesso = response.data?.message || 'Funcionário cadastrado com sucesso!'
             setMensagem({ tipo: 'success', texto: mensagemSucesso })
+
+            if(onFuncionarioCadastrado){
+                onFuncionarioCadastrado()
+            }    
+
         } catch (error) {
             console.error("Erro:", error);
             const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar funcionário.'
             setMensagem({ tipo: 'error', texto: mensagemErro })
         }
     };
+
+    const handleCarregarFuncionarios = async(contadorId) => {
+        try {
+            const response = await FuncionarioService.getByIdContador(contadorId)
+        } catch (error) {
+            console.error("Erro ao buscar funcionários: ", error)
+        }
+    }
 
     return (
         <Box
@@ -159,7 +172,9 @@ export const RegistroFuncionario = ({ onCancelar, idEmpregadorId }) => {
                     variant="outlined"
                     color="error"
                     startIcon={<Cancel />}
-                    onClick={onCancelar}
+                    onClick={() => {
+                        onCancelar()
+                    }}
                 >
                     Cancelar
                 </Button>

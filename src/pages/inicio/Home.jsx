@@ -25,7 +25,8 @@ export const Home = () => {
     const [empregadorSelecionado, setEmpregadorSelecionado] = useState('')
     const [anchorEl, setAnchorEl] = useState(null)
     const [encolhido, setEncolhido] = useState(false)
-
+    const [drawerAberto, setDrawerAberto] = useState(false)
+    const [dadosDoContador, setDadosDoContador] = useState(null)
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -64,6 +65,10 @@ export const Home = () => {
         setAnchorEl(null)
     }
 
+    const abrirDrawerComDados = (dados) => {
+        setDadosDoContador(dados)
+        setDrawerAberto(true)
+    }
 
     const navegar = (path) => navigate(`/home/${path}`)
 
@@ -167,7 +172,13 @@ export const Home = () => {
                 />
             </aside>
 
-            {anchorEl && <MenuAccount anchorEl={anchorEl} onClose={handleFecharMenu} />}
+            {anchorEl && (
+                <MenuAccount
+                    anchorEl={anchorEl}
+                    onClose={handleFecharMenu}
+                    onAbrirDrawer={abrirDrawerComDados}
+                />
+            )}
 
             <main className={style.main}>
                 <div className={style.content}>
@@ -211,6 +222,12 @@ export const Home = () => {
                     )}
                 </div>
             </main>
+            <DrawerConfigAccount
+                open={drawerAberto}
+                onClose={() => setDrawerAberto(false)}
+                dados={dadosDoContador}
+            />
+
         </div>
     )
 }

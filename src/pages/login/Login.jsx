@@ -33,7 +33,7 @@ export const Login = () => {
             setTimeout(() => {
                 setShowAlert(null)
                 navigate('/home', { replace: true })
-            }, 3000)
+            }, 1350)
         } catch (error) {
             console.error("Erro ao tentar entrar no sistema", error)
 
