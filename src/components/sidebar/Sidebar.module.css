@@ -1,12 +1,8 @@
 .container {
-    width: 270px;
-    height: 100vh;
-    color: white;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 1.25rem;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    color: white;
 }
 
 .logo {
@@ -15,20 +11,42 @@
     margin-bottom: 1.25rem;
 }
 
-.cabeca{
+.topo {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+}
+
+.topoEncolhido {
+    justify-content: center;
+}
+
+.botaoToggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--blue-200);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.cabeca {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
 }
 
-.textoCabeca{
+.textoCabeca {
     font-size: 0.85rem;
     color: var(--text-secund);
     margin-top: 3px;
 }
 
-.input{
+.input {
     margin-top: 20px;
     border: 1px solid var(--text-secund);
     border-radius: 3px;
@@ -40,28 +58,29 @@
     font-weight: bolder;
 }
 
-.icon{
+.icon {
     color: var(--blue-200);
 }
 
-.funcao{
+.funcao {
     margin-top: 1.5rem;
     display: flex;
     text-align: center;
     align-items: center;
     gap: 15px;
-    width: 200px;
+    width: 100%;
     height: 35px;
+    padding-left: 10px;
 }
 
-.funcao:hover{
+.funcao:hover {
     cursor: pointer;
     border: 1px solid var(--blue-200);
     border-radius: 5px;
-    background-color:rgba(0, 123, 255, 0.2);         
+    background-color: rgba(0, 123, 255, 0.2);
 }
 
-.textoFuncao{
+.textoFuncao {
     font-size: 0.85rem;
     color: var(--text-secund);
     font-weight: bolder;

@@ -16,7 +16,7 @@
     padding: 30px;
     border-radius: 8px;
     width: 550px;
-    height: 460px;
+    height: 730px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -103,6 +103,12 @@
     align-items: center;
 }
 
+.logoImage {
+    width: 150px;
+    height: auto; 
+    max-width: 100%; 
+}
+
 .inputContainer{
     position: relative;
 }
@@ -133,6 +139,17 @@ input{
     z-index: 9999;
     animation: fadeInUp 0.4s ease-in-out;
 }
+
+.validado {
+    color: var(--ativo);
+    text-decoration: line-through;
+    transition: all 0.3s ease;
+}
+
+.naoValidado {
+    color: "var(--blue-300)";
+}
+
 
 @keyframes fadeInUp {
     from {

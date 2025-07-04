@@ -6,45 +6,59 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { getSpeedDialActionUtilityClass } from '@mui/material';
 import { Add, Edit } from '@mui/icons-material';
+import ContadorService from '../../Services/ContadorService';
+import { useState, useEffect } from 'react';
+import { Chip } from '@mui/material';
 
 export const TableContador = () => {
 
-  function createData(nome, cpfcnpj, empregador, status){
-    return { nome, cpfcnpj, empregador, status}
+  const [dadosContadores, setDadosContadores] = useState([])
+
+  const GetContadores = async () => {
+    try {
+      const response = await ContadorService.get()
+      setDadosContadores(response.data)
+    } catch (error) {
+
+    }
   }
 
-  const rows = [
-    createData("João Pedro", 14608534661, 'Data C', 'Ativo'),
-    createData("Savio", 11111111111, 'Data C', 'Ativo'),
-    createData("Renato", 11111111112, 'Data C', 'Ativo'),
-    createData("Atila", 11111111113, 'Data C', 'Ativo'),
-    createData("Kaio", 11111111114, 'Data C', 'Ativo'),
-  ];
+  useEffect(() => {
+    GetContadores()
+  }, [])
 
-  return(
-    <TableContainer component={Paper} sx={{ width: 470, border: 1, borderColor: 'var(--blue-200)' }}>
-      <TableHead sx={{minWidth: 850 }} aria-label='simple table'>
+  return (
+    <TableContainer component={Paper} sx={{ width: 880, border: 1, borderColor: 'var(--blue-200)' }}>
+      <TableHead sx={{ minWidth: 850 }} aria-label='simple table'>
         <TableRow>
           <TableCell align='left'>CPF</TableCell>
+          <TableCell align='left'>CRC</TableCell>
           <TableCell align='left'>Nome</TableCell>
-          <TableCell aling='left'>Empregador</TableCell>
-          <TableCell aling='left'>Status</TableCell>
-          <TableCell aling='left'><Add sx={{color: 'var(--blue-200)', cursor: 'pointer', borderRadius: 5, ":hover":{ backgroundColor: 'rgba(0, 123, 255, 0.2)' }}}/></TableCell>
+          <TableCell align='left'>Empregador</TableCell>
+          <TableCell align='left'>Status</TableCell>
+          <TableCell align='left'><Add sx={{ color: 'var(--blue-200)', cursor: 'pointer', borderRadius: 5, ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' } }} /></TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.map((rows) => (
+        {dadosContadores.map((contador) => (
           <TableRow
-            key={rows.cpf}
-            sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
+            key={dadosContadores.id}
+            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{rows.cpfcnpj}</TableCell>
-            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{rows.nome}</TableCell>
-            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{rows.empregador}</TableCell>
-            <TableCell component='th' scope='row' sx={{ color: 'var(--ativo)', fontWeight: 'bolder' }}>{rows.status}</TableCell>
-            <TableCell aling='center'><Edit sx={{color: 'var(--blue-200)', cursor: 'pointer', borderRadius: 5, ":hover":{ backgroundColor: 'rgba(0, 123, 255, 0.2)' }}}/></TableCell>
+            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{contador.pessoa.cpfcnpj}</TableCell>
+            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{contador.crc}</TableCell>
+            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{contador.pessoa.nome}</TableCell>
+            <TableCell component='th' scope='row' sx={{ color: 'var(--blue-200)', fontWeight: 'bolder' }}>{contador.empregador}</TableCell>
+            <TableCell >
+              <Chip
+                label={contador.pessoa.ativo ? 'Ativo' : 'Inativo'}
+                color={contador.pessoa.ativo ? 'success' : 'error'}
+                size="small"
+                variant="outlined"
+              />
+            </TableCell>
+            <TableCell align='center'><Edit sx={{ color: 'var(--blue-200)', cursor: 'pointer', borderRadius: 5, ":hover": { backgroundColor: 'rgba(0, 123, 255, 0.2)' } }} /></TableCell>
           </TableRow>
         ))}
       </TableBody>

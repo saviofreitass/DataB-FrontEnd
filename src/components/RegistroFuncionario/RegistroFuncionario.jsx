@@ -1,16 +1,16 @@
-import { Cancel, SaveAlt } from "@mui/icons-material";
-import { Box, TextField, Button, Alert } from "@mui/material";
-import { teal } from "@mui/material/colors";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { LinearDeterminate } from "../loading/LinearDeterminate";
+import { Cancel, SaveAlt } from "@mui/icons-material"
+import { Box, TextField, Button, Alert, InputAdornment } from "@mui/material"
 
+import FuncionarioService from "../../Services/FuncionarioService"
+import { decodeJWT } from "../../components/Utils/DecodeToken"
 
-export const RegistroFuncionario = ({ onCancelar }) => {
+import { useEffect, useState } from "react"
 
+export const RegistroFuncionario = ({ onCancelar, idEmpregadorId, onFuncionarioCadastrado }) => {
     const [mensagem, setMensagem] = useState({ tipo: '', texto: '' })
-
+    const [userId, setUserId] = useState('')
     const [dadosFuncionario, setDadosFuncionario] = useState({
+        contador: "",
         nome: "",
         cpfcnpj: "",
         telefone: "",
@@ -22,32 +22,100 @@ export const RegistroFuncionario = ({ onCancelar }) => {
         senha: "",
         usuarioCriacao: "",
         usuarioAtualizacao: ""
-    })
+    });
+
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        if (token) {
+            const payload = decodeJWT(token)
+            if (payload?.id) {
+                setUserId(payload.id)
+                setDadosFuncionario((prev) => ({
+                    ...prev,
+                    contador: payload.id,
+                    usuarioCriacao: payload.id,
+                    usuarioAtualizacao: payload.id
+                }))
+            }
+        }
+    }, [])
+
+    useEffect(() => {
+        if (mensagem.texto) {
+            const tempoMensagem = setTimeout(() => {
+                setMensagem({ tipo: '', texto: '' })
+            }, 4500)
+            return () => clearTimeout(tempoMensagem)
+        }
+    }, [mensagem])
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value } = e.target
+        let valorFormatado = value
+
+        if (name === 'cpfcnpj') {
+            valorFormatado = formatarCPF(value)
+        }
+
+        if (name === 'telefone') {
+            valorFormatado = formatarTelefone(value)
+        }
+
+        if (name === 'salario') {
+            valorFormatado = formatarSalario(value)
+        }
+
         setDadosFuncionario((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: valorFormatado,
         }))
     }
 
     const handleSalvar = async () => {
         try {
+            const dataAdmissaoISO = new Date(dadosFuncionario.dataAdmissao).toISOString()
+
             const payload = {
-                ...dadosFuncionario,
-                salario: parseFloat(dadosFuncionario.salario),
-                // dataAdmissao: new Date(dadosFuncionario.dataAdmissao).toISOString(),
-            }
+                contadorId: dadosFuncionario.contador,
+                empregadorId: idEmpregadorId,
+                usuario: {
+                    email: dadosFuncionario.email,
+                    senha: dadosFuncionario.senha,
+                    tipoUsuario: "ROLE_FUNCIONARIO",
+                    usuarioCriacao: dadosFuncionario.usuarioCriacao || userId,
+                },
+                pessoa: {
+                    nome: dadosFuncionario.nome,
+                    cpfcnpj: dadosFuncionario.cpfcnpj.replace(/\D/g, ''),
+                    telefone: dadosFuncionario.telefone.replace(/\D/g, ''),
+                    ativo: true,
+                },
+                cargo: dadosFuncionario.cargo,
+                setor: dadosFuncionario.setor,
+                salario: Number(dadosFuncionario.salario.replace(/\./g, '').replace(',', '.')),
+                dataAdmissao: dataAdmissaoISO,
+            };
 
-            const response = await axios.post("http://localhost:8080/funcionario/cadastro", payload)
-            const mensagemSucesso = response.data?.mensagem || 'Funcionário cadastrado com sucesso!'
-
+            const response = await FuncionarioService.insert(payload)
+            const mensagemSucesso = response.data?.message || 'Funcionário cadastrado com sucesso!'
             setMensagem({ tipo: 'success', texto: mensagemSucesso })
 
+            if(onFuncionarioCadastrado){
+                onFuncionarioCadastrado()
+            }    
+
         } catch (error) {
-            const mensagemErro = error.response?.data?.mensagem || 'Erro ao cadastrar funcionário.'
+            console.error("Erro:", error);
+            const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar funcionário.'
             setMensagem({ tipo: 'error', texto: mensagemErro })
+        }
+    };
+
+    const handleCarregarFuncionarios = async(contadorId) => {
+        try {
+            const response = await FuncionarioService.getByIdContador(contadorId)
+        } catch (error) {
+            console.error("Erro ao buscar funcionários: ", error)
         }
     }
 
@@ -58,7 +126,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2,
-                width: 850,
+                width: 970,
                 border: 1,
                 borderRadius: 2,
                 borderColor: 'var(--text-primary)',
@@ -66,17 +134,14 @@ export const RegistroFuncionario = ({ onCancelar }) => {
             }}
         >
             {mensagem.texto && (
-                
                 <Alert severity={mensagem.tipo}>
                     {mensagem.texto}
                 </Alert>
             )}
-            <Box
-                sx={{
-                    display:
-                        'flex', gap: 2
-                }}>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
+                    required
                     name="nome"
                     value={dadosFuncionario.nome}
                     onChange={handleChange}
@@ -85,6 +150,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="cpfcnpj"
                     value={dadosFuncionario.cpfcnpj}
                     onChange={handleChange}
@@ -93,9 +159,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <Button
-                    sx={{
-                        background: 'var(--blue-200)'
-                    }}
+                    sx={{ background: 'var(--blue-200)' }}
                     variant="contained"
                     color="primary"
                     startIcon={<SaveAlt />}
@@ -104,13 +168,13 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     Salvar
                 </Button>
                 <Button
-                    sx={{
-                        border: '1px solid var(--danger)'
-                    }}
+                    sx={{ border: '1px solid var(--danger)' }}
                     variant="outlined"
                     color="error"
                     startIcon={<Cancel />}
-                    onClick={onCancelar}
+                    onClick={() => {
+                        onCancelar()
+                    }}
                 >
                     Cancelar
                 </Button>
@@ -118,6 +182,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
 
             <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
+                    required
                     name="email"
                     value={dadosFuncionario.email}
                     onChange={handleChange}
@@ -126,6 +191,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="senha"
                     value={dadosFuncionario.senha}
                     onChange={handleChange}
@@ -144,11 +210,7 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                 />
             </Box>
 
-            <Box
-                sx={{
-                    display: 'flex',
-                    gap: 2
-                }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
                     name="cargo"
                     value={dadosFuncionario.cargo}
@@ -166,34 +228,25 @@ export const RegistroFuncionario = ({ onCancelar }) => {
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
                     name="salario"
                     value={dadosFuncionario.salario}
                     onChange={handleChange}
                     label="Salário"
                     size="small"
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+                    }}
                     sx={{ ...inputStyle, flex: 1 }}
                 />
                 <TextField
+                    required
+                    type="date"
                     name="dataAdmissao"
                     value={dadosFuncionario.dataAdmissao}
                     onChange={handleChange}
-                    label="Data Admissao"
-                    size="small"
-                    sx={{ ...inputStyle, flex: 1 }}
-                />
-                <TextField
-                    name="usuarioCriacao"
-                    value={dadosFuncionario.usuarioCriacao}
-                    onChange={handleChange}
-                    label="Usuario"
-                    size="small"
-                    sx={{ ...inputStyle, flex: 1 }}
-                />
-                <TextField
-                    name="usuarioAtualizacao"
-                    value={dadosFuncionario.usuarioAtualizacao}
-                    onChange={handleChange}
-                    label="Usuario"
+                    label="Data Admissão"
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     sx={{ ...inputStyle, flex: 1 }}
                 />
@@ -206,5 +259,29 @@ const inputStyle = {
     '& .MuiOutlinedInput-root.Mui-focused fieldset': {
         borderColor: 'var(--blue-200)',
         borderWidth: '2px',
-    },
+    }
+}
+
+const formatarCPF = (value) => {
+    return value
+        .replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
 };
+
+const formatarTelefone = (value) => {
+    return value
+        .replace(/\D/g, '')
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d)/, '$1-$2')
+        .replace(/(-\d{4})\d+?$/, '$1')
+};
+
+const formatarSalario = (value) => {
+    const valor = value.replace(/\D/g, '')
+    const numero = (Number(valor) / 100).toFixed(2)
+    return numero
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}

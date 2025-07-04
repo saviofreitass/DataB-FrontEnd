@@ -1,47 +1,59 @@
 import style from './Login.module.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Logo from '../../assets/Logo.png'
+import LogoBigData1 from '../../assets/LogoBigData1.png'
 import { Register } from '../../components/Register';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { LinearDeterminate } from '../../components/loading/LinearDeterminate';
+import LoginService from '../../Services/LoginService.js'
+import LogoBigData from '../../assets/Logo-Big-Data-sf.png'
 
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
-    const [ativo, setAtivo] = useState(false);
     const [erro, setErro] = useState(false);
     const [register, setRegister] = useState(false);
     const navigate = useNavigate();
     const [showAlert, setShowAlert] = useState(null);
-    const [showLinear, setLinear] = useState(false);
 
-    const handleSubmit = (e) => {
+    const credenciais = {
+        'email': email,
+        'senha': senha
+    }
+
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setAtivo(true);
+        try {
+            const response = await LoginService.post(credenciais)
+            localStorage.setItem('token', response.data.acessToken)
 
-        if (email === '' || senha === '') {
-            setErro("email ou senha estão incorretos.");
+            setErro("")
+            setShowAlert('success')
+            setTimeout(() => {
+                setShowAlert(null)
+                navigate('/home', { replace: true })
+            }, 1350)
+        } catch (error) {
+            console.error("Erro ao tentar entrar no sistema", error)
+
+            const mensagemErro = error?.response?.data?.message || "Erro ao fazer login."
+
+            setErro(mensagemErro)
             setShowAlert('error')
             setTimeout(() => {
                 setShowAlert(null)
             }, 5000)
-
-            return;
-        } else {
-            setErro("");
-
-            console.log('e-mail: ', email);
-            console.log('Senha: ', senha);
-
-            setShowAlert('success')
-            setTimeout(() => {
-                setShowAlert(null)
-                navigate('/home')
-            }, 5000)
         }
-
     }
+
+
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        if (token) {
+            navigate('/home', { replace: true })
+        }
+    }, [])
 
     const handleRegister = (e) => {
         e.preventDefault()
@@ -52,7 +64,7 @@ export const Login = () => {
         <div className={style.container}>
             <main>
                 <div className={style.containerLogo}>
-                    <img src={Logo} alt="logo-marca" />
+                    <img src={LogoBigData} alt="logo-marca"  className={style.logoImage}/>
                 </div>
                 <div className={style.containerFilho}>
                     <h2>Bem vindo(a)!</h2>
@@ -87,7 +99,7 @@ export const Login = () => {
                             />
                         </div>
                         <div className={style.botoesContainer}>
-                            <button className={style.buttonEntrar} onClick={handleSubmit}>Entrar</button>
+                            <button className={style.buttonEntrar} onClick={handleLogin}>Entrar</button>
                             <button className={style.buttonEsqueciASenha}>Esqueci a senha</button>
                             <button className={style.buttonEsqueciASenha} onClick={handleRegister}>Registre-se</button>
                         </div>
@@ -102,7 +114,7 @@ export const Login = () => {
                         <Alert variant='filled' severity='success'>Login feito com sucesso!</Alert>
                     )}
                     {showAlert === 'error' && (
-                        <Alert variant='filled' severity='error'>Erro: Credenciais incorretas.</Alert>
+                        <Alert variant='filled' severity='error'>Erro: {erro}</Alert>
                     )}
                     <LinearDeterminate />
                 </div>

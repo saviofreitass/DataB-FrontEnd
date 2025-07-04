@@ -21,6 +21,12 @@
     text-align: center;
 }
 
+.logoImage {
+    width: 150px;
+    height: auto; 
+    max-width: 100%; 
+}
+
 .containerFilho{
     display: flex;
     flex-direction: column;
